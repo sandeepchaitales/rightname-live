@@ -1,0 +1,28 @@
+{
+  "summary": {
+    "tests_run": 3,
+    "tests_passed": 2,
+    "success_rate": 66.66666666666666
+  },
+  "results": [
+    {
+      "test": "API Health Check",
+      "success": true,
+      "details": "Status: 200, Response: {\"message\":\"RightName API is running\"}",
+      "timestamp": "2025-12-21T05:41:11.150471"
+    },
+    {
+      "test": "Evaluate Endpoint - HTTP Status",
+      "success": false,
+      "details": "HTTP 520: {\"detail\":\"Analysis failed: 'str' object has no attribute 'text'\"}",
+      "timestamp": "2025-12-21T05:41:33.310315"
+    },
+    {
+      "test": "Invalid Payload Handling",
+      "success": true,
+      "details": "Status: 422 (Expected 4xx for invalid payload)",
+      "timestamp": "2025-12-21T05:41:33.366698"
+    }
+  ],
+  "timestamp": "2025-12-21T05:41:33.367393"
+}
