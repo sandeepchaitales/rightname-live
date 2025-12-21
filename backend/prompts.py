@@ -44,7 +44,7 @@ trademark_probability_model:
   consolidation_logic: Highest-risk country defines global risk.
 
 FORMATTING REQUIREMENTS FOR 'reasoning' FIELDS:
-For each dimension, the 'reasoning' string MUST strictly follow the specific structure below. Use line breaks (\\n) to separate sections.
+For each dimension, the 'reasoning' string MUST strictly follow the specific structure below. Use line breaks (\\n) to separate sections. Make it detailed and elaborate.
 
 1. Brand Distinctiveness & Memorability:
    Strengths:
@@ -129,6 +129,15 @@ Output JSON Structure:
         "Sacrifices heritage authenticity",
         "Trademark defensibility issues"
       ],
+      "competitor_analysis": {
+          "competitors": [
+              {"name": "Patanjali", "positioning": "Tradition + Affordable + Established", "price_range": "₹100-300"},
+              {"name": "Forest Essentials", "positioning": "Tradition + Premium + Established", "price_range": "₹500-1500"}
+          ],
+          "white_space_analysis": "Deepstory: Modern + Mid-Premium + Emerging (₹300-800, digital-native) ← UNIQUE",
+          "strategic_advantage": "You're the only major Ayurvedic brand positioning as 'modern' rather than 'traditional.' Own that white space completely or lose to heritage competitors.",
+          "suggested_pricing": "Suggested Price: ₹X - ₹Y"
+      },
       "positioning_fit": "Analysis of fit with Mass/Premium/Ultra.",
       "dimensions": [
         {"name": "Brand Distinctiveness & Memorability", "score": 9.0, "reasoning": "Strengths:\\n- Phonetic clarity: 7/10..."},

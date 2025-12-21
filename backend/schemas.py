@@ -20,6 +20,17 @@ class CountryAnalysis(BaseModel):
     cultural_notes: str
     linguistic_check: str
 
+class Competitor(BaseModel):
+    name: str
+    positioning: str
+    price_range: str
+
+class CompetitorAnalysis(BaseModel):
+    competitors: List[Competitor]
+    white_space_analysis: str
+    strategic_advantage: str
+    suggested_pricing: str
+
 class BrandScore(BaseModel):
     brand_name: str
     namescore: float
@@ -31,6 +42,7 @@ class BrandScore(BaseModel):
     dimensions: List[DimensionScore]
     trademark_risk: TrademarkRisk
     cultural_analysis: List[CountryAnalysis]
+    competitor_analysis: Optional[CompetitorAnalysis] = None
     positioning_fit: str
 
 class BrandEvaluationRequest(BaseModel):
