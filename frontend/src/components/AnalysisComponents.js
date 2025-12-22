@@ -1,23 +1,48 @@
 import React from 'react';
 import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Tooltip
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Lightbulb, AlertTriangle } from "lucide-react";
 
-export const BrandRadarChart = ({ data }) => {
+// Custom Tick Component for Radar Chart
+const CustomTick = ({ payload, x, y, cx, cy, ...rest }) => {
   return (
-    <div className="h-[350px] w-full min-w-[300px]">
+    <text
+      {...rest}
+      y={y + (y - cy) / 10}
+      x={x + (x - cx) / 10}
+      fontFamily="Outfit, sans-serif"
+      fontSize={11}
+      fontWeight={600}
+      textAnchor="middle"
+      fill="#475569"
+    >
+      <tspan x={x + (x - cx) / 10} dy="0em">{payload.value}</tspan>
+    </text>
+  );
+};
+
+export const BrandRadarChart = ({ data }) => {
+  // Enhance data with full score mark if needed, but we'll use Tooltip/Labels
+  return (
+    <div className="h-[400px] w-full min-w-[300px]">
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+        <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
           <PolarGrid stroke="#e2e8f0" strokeDasharray="3 3" />
           <PolarAngleAxis 
             dataKey="name" 
-            tick={{ fill: '#64748b', fontSize: 11, fontWeight: 600 }} 
+            tick={(props) => <CustomTick {...props} />}
           />
-          <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
+          <PolarRadiusAxis 
+            angle={30} 
+            domain={[0, 10]} 
+            tickCount={6} 
+            tick={{ fill: '#94a3b8', fontSize: 10 }}
+            axisLine={false}
+          />
           <Radar
             name="Score"
             dataKey="score"
@@ -25,6 +50,11 @@ export const BrandRadarChart = ({ data }) => {
             strokeWidth={3}
             fill="#a78bfa"
             fillOpacity={0.4}
+            label={{ position: 'top', fill: '#7c3aed', fontSize: 12, fontWeight: 'bold' }} // Show score on points
+          />
+          <Tooltip 
+            formatter={(value) => [`${value}/10`, 'Score']}
+            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
           />
         </RadarChart>
       </ResponsiveContainer>

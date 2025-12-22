@@ -88,117 +88,120 @@ const Dashboard = () => {
                     </div>
                 </section>
 
-                {/* 1. Strategy Section */}
-                <section>
-                    <div className="flex items-center space-x-4 mb-8">
-                         <div className="h-10 w-1.5 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
-                         <div>
-                            <h3 className="text-2xl font-black text-slate-900">Strategy Snapshot</h3>
-                            <p className="text-slate-500 font-medium">Positioning & Trade-offs</p>
-                         </div>
-                    </div>
-
-                    <Card className="playful-card bg-white border-0 ring-1 ring-slate-100">
-                        <CardContent className="pt-8">
-                            <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-8 flex items-center gap-3">
-                                <span className="text-violet-500">❝</span>
-                                {brand.strategic_classification || "Analysis unavailable"}
-                            </h3>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-                                <div className="bg-emerald-50/50 p-6 md:p-8 rounded-3xl border border-emerald-100">
-                                    <h4 className="flex items-center text-sm font-black text-emerald-700 uppercase mb-4 tracking-wide">
-                                        <CheckCircle2 className="w-5 h-5 mr-2" />
-                                        Delivers
-                                    </h4>
-                                    <ul className="space-y-4">
-                                        {brand.pros && brand.pros.map((pro, i) => (
-                                            <li key={i} className="flex items-start text-base text-slate-700 font-medium">
-                                                <span className="mr-3 text-emerald-500 font-bold">•</span>
-                                                {pro}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                
-                                <div className="bg-rose-50/50 p-6 md:p-8 rounded-3xl border border-rose-100">
-                                    <h4 className="flex items-center text-sm font-black text-rose-700 uppercase mb-4 tracking-wide">
-                                        <XCircle className="w-5 h-5 mr-2" />
-                                        Sacrifices
-                                    </h4>
-                                    <ul className="space-y-4">
-                                        {brand.cons && brand.cons.map((con, i) => (
-                                            <li key={i} className="flex items-start text-base text-slate-700 font-medium">
-                                                <span className="mr-3 text-rose-500 font-bold">•</span>
-                                                {con}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </section>
-
-                {/* 2. Deep Dive Metrics (Radar, Domain, Cultural) */}
-                <section>
-                    <div className="flex items-center space-x-4 mb-8">
-                         <div className="h-10 w-1.5 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full"></div>
-                         <div>
-                            <h3 className="text-2xl font-black text-slate-900">Brand Dimensions</h3>
-                            <p className="text-slate-500 font-medium">Analysis on 6 Core Frameworks</p>
-                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        {/* Domain (Left - 4 cols) */}
-                        <div className="lg:col-span-4 flex flex-col">
-                            {brand.domain_analysis && (
-                                <DomainAvailabilityCard analysis={brand.domain_analysis} />
-                            )}
+                {/* 1. Strategy Section + Radar Chart (SIDE-BY-SIDE) */}
+                <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                    {/* Strategy Snapshot (Left - 7 cols) */}
+                    <div className="lg:col-span-7 flex flex-col h-full">
+                        <div className="flex items-center space-x-4 mb-6">
+                             <div className="h-10 w-1.5 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></div>
+                             <div>
+                                <h3 className="text-2xl font-black text-slate-900">Strategy Snapshot</h3>
+                                <p className="text-slate-500 font-medium">Positioning & Trade-offs</p>
+                             </div>
                         </div>
 
-                        {/* Radar (Middle - 4 cols) */}
-                        <div className="lg:col-span-4 playful-card p-4 flex items-center justify-center bg-white h-full">
+                        <Card className="playful-card bg-white border-0 ring-1 ring-slate-100 flex-grow">
+                            <CardContent className="pt-8">
+                                <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                                    <span className="text-violet-500">❝</span>
+                                    {brand.strategic_classification || "Analysis unavailable"}
+                                </h3>
+                                
+                                <div className="grid grid-cols-1 gap-6">
+                                    <div className="bg-emerald-50/50 p-6 rounded-3xl border border-emerald-100">
+                                        <h4 className="flex items-center text-sm font-black text-emerald-700 uppercase mb-4 tracking-wide">
+                                            <CheckCircle2 className="w-5 h-5 mr-2" />
+                                            Delivers
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {brand.pros && brand.pros.map((pro, i) => (
+                                                <li key={i} className="flex items-start text-sm md:text-base text-slate-700 font-medium">
+                                                    <span className="mr-3 text-emerald-500 font-bold">•</span>
+                                                    {pro}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                    
+                                    <div className="bg-rose-50/50 p-6 rounded-3xl border border-rose-100">
+                                        <h4 className="flex items-center text-sm font-black text-rose-700 uppercase mb-4 tracking-wide">
+                                            <XCircle className="w-5 h-5 mr-2" />
+                                            Sacrifices
+                                        </h4>
+                                        <ul className="space-y-3">
+                                            {brand.cons && brand.cons.map((con, i) => (
+                                                <li key={i} className="flex items-start text-sm md:text-base text-slate-700 font-medium">
+                                                    <span className="mr-3 text-rose-500 font-bold">•</span>
+                                                    {con}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Radar Chart (Right - 5 cols) */}
+                    <div className="lg:col-span-5 flex flex-col h-full">
+                        <div className="flex items-center space-x-4 mb-6">
+                             <div className="h-10 w-1.5 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
+                             <div>
+                                <h3 className="text-2xl font-black text-slate-900">Brand Dimensions</h3>
+                                <p className="text-slate-500 font-medium">6-Factor Analysis</p>
+                             </div>
+                        </div>
+                        <div className="playful-card p-4 flex items-center justify-center bg-white h-full min-h-[500px]">
                             <BrandRadarChart data={brand.dimensions} />
                         </div>
+                    </div>
+                </section>
 
-                        {/* Cultural/Positioning (Right - 4 cols) */}
-                        <div className="lg:col-span-4 flex flex-col space-y-6">
-                            <Card className="playful-card border-l-4 border-l-cyan-400 flex-grow">
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-xs font-bold uppercase text-cyan-500 tracking-widest">Positioning Fit</CardTitle>
-                        {/* Visibility Analysis (Left - 4 cols) */}
-                        <div className="lg:col-span-4 flex flex-col">
-                            {brand.visibility_analysis && (
-                                <VisibilityAnalysisCard analysis={brand.visibility_analysis} />
-                            )}
-                        </div>
-                                </CardHeader>
-                                <CardContent className="pt-4">
-                                    <p className="text-base font-medium text-slate-700 leading-relaxed">{brand.positioning_fit}</p>
-                                </CardContent>
-                            </Card>
+                {/* 2. Deep Dive Metrics (Domain, Visibility, Cultural) */}
+                <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Domain */}
+                    <div className="flex flex-col">
+                        {brand.domain_analysis && (
+                            <DomainAvailabilityCard analysis={brand.domain_analysis} />
+                        )}
+                    </div>
 
-                             <Card className="playful-card border-l-4 border-l-fuchsia-400 flex-grow">
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-xs font-bold uppercase text-fuchsia-500 tracking-widest flex items-center gap-2">
-                                        <Globe className="w-3 h-3" /> Cultural Resonance
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4 pt-4">
-                                    {brand.cultural_analysis.map((c, i) => (
-                                        <div key={i} className="bg-fuchsia-50/50 p-4 rounded-xl">
-                                            <div className="flex justify-between font-bold text-base mb-2 text-slate-800">
-                                                <span>{c.country}</span>
-                                                <span className="text-fuchsia-600">{c.cultural_resonance_score}/10</span>
-                                            </div>
-                                            <p className="text-sm text-slate-600 font-medium">{c.cultural_notes}</p>
+                    {/* Visibility */}
+                    <div className="flex flex-col">
+                        {brand.visibility_analysis && (
+                            <VisibilityAnalysisCard analysis={brand.visibility_analysis} />
+                        )}
+                    </div>
+
+                    {/* Cultural/Positioning */}
+                    <div className="flex flex-col space-y-6">
+                        <Card className="playful-card border-l-4 border-l-cyan-400 flex-grow">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-bold uppercase text-cyan-500 tracking-widest">Positioning Fit</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-4">
+                                <p className="text-base font-medium text-slate-700 leading-relaxed">{brand.positioning_fit}</p>
+                            </CardContent>
+                        </Card>
+
+                         <Card className="playful-card border-l-4 border-l-fuchsia-400 flex-grow">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-bold uppercase text-fuchsia-500 tracking-widest flex items-center gap-2">
+                                    <Globe className="w-3 h-3" /> Cultural Resonance
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 pt-4">
+                                {brand.cultural_analysis.map((c, i) => (
+                                    <div key={i} className="bg-fuchsia-50/50 p-4 rounded-xl">
+                                        <div className="flex justify-between font-bold text-base mb-2 text-slate-800">
+                                            <span>{c.country}</span>
+                                            <span className="text-fuchsia-600">{c.cultural_resonance_score}/10</span>
                                         </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        </div>
+                                        <p className="text-sm text-slate-600 font-medium">{c.cultural_notes}</p>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
                     </div>
                 </section>
 
