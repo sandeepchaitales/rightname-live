@@ -1,34 +1,166 @@
-/* ... (previous styles) ... */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fredoka:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap');
 
-/* Update print style for long-form content */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 270 50% 98%;
+    --foreground: 260 25% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 25% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 25% 15%;
+    --primary: 265 89% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 320 80% 90%;
+    --secondary-foreground: 320 90% 35%;
+    --muted: 260 20% 96%;
+    --muted-foreground: 260 10% 55%;
+    --accent: 180 70% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 260 20% 90%;
+    --input: 260 20% 90%;
+    --ring: 265 89% 60%;
+    --radius: 1rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Outfit', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    @apply font-bold tracking-tight;
+  }
+}
+
+.playful-card {
+  @apply bg-white border-2 border-slate-100 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)] hover:shadow-[6px_6px_0px_0px_rgba(99,102,241,0.2)] transition-all duration-300 rounded-2xl;
+}
+
+/* --- EXCITING & PREMIUM PDF STYLES --- */
 @media print {
-  /* ... (previous print resets) ... */
-
-  /* Allow breaking INSIDE cards for long text, but keep headers attached if possible */
-  .playful-card {
-    break-inside: auto !important; 
-    page-break-inside: auto !important;
-    margin-bottom: 20px !important;
-    border-bottom: 1px solid #e2e8f0 !important; /* Visual separator if split */
+  /* 1. Page Setup */
+  @page {
+    size: A4;
+    margin: 15mm; /* Standard 15mm margins for balance */
   }
 
-  /* Prevent header or badge from being stranded at bottom of page */
-  .card-header, h1, h2, h3, h4, .badge {
-    break-after: avoid !important;
-    page-break-after: avoid !important;
+  /* 2. Global Resets */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background-color: white !important;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Increase font size for readability in dense reports */
-  p, li, td {
-    font-size: 10pt !important; /* Slightly larger than previous 9pt */
-    line-height: 1.6 !important;
-    text-align: justify; /* Professional document look */
+  /* 3. Hide UI Elements */
+  nav, button, .print\:hidden, .sticky-header, .no-print {
+    display: none !important;
   }
 
-  /* Add page numbers? (Browsers usually do this, but we can try CSS counters if needed) */
+  /* 4. Layout Flow & Breaks */
+  .grid {
+    display: block !important; /* Stack grids generally */
+  }
   
-  /* Ensure radar chart is on its own page if needed or fits well */
-  .recharts-wrapper {
-    break-inside: avoid !important;
+  /* Exception for balanced 2-col grids that fit side-by-side */
+  .print\:grid-cols-2 {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* Prevent awkward breaks inside components */
+  .playful-card, .card, table, tr, figure, .break-inside-avoid {
+    break-inside: avoid !important; /* Standard property */
+    page-break-inside: avoid !important; /* Legacy property */
+  }
+  
+  /* Allow massive text blocks to break if needed */
+  .playful-card.long-form {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+
+  /* Force breaks before major sections */
+  .print\:break-before-page {
+    page-break-before: always !important;
+    margin-top: 0 !important; /* Reset margin after break */
+  }
+
+  /* 5. Typography Scaling */
+  h1 { font-size: 24pt !important; margin-bottom: 10pt !important; color: #0f172a !important; }
+  h2 { font-size: 18pt !important; margin-bottom: 8pt !important; page-break-after: avoid; color: #0f172a !important; }
+  h3 { font-size: 14pt !important; margin-bottom: 6pt !important; page-break-after: avoid; color: #0f172a !important; }
+  p, td, li { font-size: 10pt !important; line-height: 1.5 !important; text-align: justify; color: #334155 !important; }
+
+  /* 6. Visual Adjustments */
+  .playful-card {
+    border: 1px solid #cbd5e1 !important; /* Slate-300 */
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    margin-bottom: 20px !important;
+    padding: 15px !important;
+    background-color: white !important;
+  }
+  
+  /* Compact Headers inside cards */
+  .playful-card .card-header {
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  /* 7. Spacing Reduction */
+  .space-y-12, .space-y-16 {
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+  }
+  
+  section {
+    margin-bottom: 30px !important;
+  }
+
+  /* 8. Table Specifics */
+  table {
+    width: 100% !important;
+    border-collapse: collapse;
+  }
+  th {
+    background-color: #f1f5f9 !important; /* Slate-100 */
+    color: #0f172a !important;
+    font-size: 9pt !important;
+    padding: 6px 10px !important;
+    font-weight: bold !important;
+  }
+  td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px 10px !important;
+  }
+  
+  /* 9. Badge & Colors */
+  .badge {
+    border: 1px solid #e2e8f0 !important;
+    color: #000 !important; /* Ensure readability */
+  }
+  
+  /* Scale content to fit width */
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
