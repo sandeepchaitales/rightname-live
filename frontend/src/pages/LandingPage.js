@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap } from "lucide-react";
+import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const FeatureCard = ({ icon: Icon, title, description, color }) => (
@@ -71,7 +71,14 @@ const LandingPage = () => {
       navigate('/dashboard', { state: { data: result, query: payload } });
     } catch (error) {
       console.error(error);
-      toast.error("Evaluation failed. Please try again.");
+      const errorMsg = error.response?.data?.detail || "Evaluation failed. Please try again.";
+      toast.error(
+        <div className="flex flex-col gap-1">
+            <span className="font-bold">Analysis Failed</span>
+            <span className="text-xs">{errorMsg}</span>
+        </div>,
+        { duration: 5000 }
+      );
     } finally {
       setLoading(false);
     }
