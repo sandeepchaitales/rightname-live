@@ -27,6 +27,12 @@ class DomainAnalysis(BaseModel):
     alternatives: List[Dict[str, str]]
     strategy_note: str
 
+class VisibilityAnalysis(BaseModel):
+    google_presence: List[str]
+    app_store_presence: List[str]
+    warning_triggered: bool
+    warning_reason: Optional[str] = None
+
 class CountryAnalysis(BaseModel):
     country: str
     cultural_resonance_score: float
@@ -51,7 +57,7 @@ class Recommendation(BaseModel):
 class FinalAssessment(BaseModel):
     verdict_statement: str
     suitability_score: float
-    dimension_breakdown: List[Dict[str, float]]  # Simple name: score mapping for the list
+    dimension_breakdown: List[Dict[str, float]]
     recommendations: List[Recommendation]
     alternative_path: str
 
@@ -67,9 +73,10 @@ class BrandScore(BaseModel):
     trademark_risk: dict 
     trademark_matrix: TrademarkRiskMatrix
     domain_analysis: DomainAnalysis
+    visibility_analysis: Optional[VisibilityAnalysis] = None # NEW FIELD
     cultural_analysis: List[CountryAnalysis]
     competitor_analysis: Optional[CompetitorAnalysis] = None
-    final_assessment: Optional[FinalAssessment] = None # NEW FIELD
+    final_assessment: Optional[FinalAssessment] = None
     positioning_fit: str
 
 class BrandEvaluationRequest(BaseModel):

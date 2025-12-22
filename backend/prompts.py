@@ -26,7 +26,7 @@ scoring_rules:
     Trademark_Risk: 20
     Consumer_Perception: 10
 
-rightname_index:
+namescore_index:
   interpretation:
     85-100: Category-defining (Strong GO)
     70-84: Globally viable (GO)
@@ -65,7 +65,7 @@ Output JSON Structure:
       },
       "positioning_fit": "Analysis of fit with Mass/Premium/Ultra.",
       "dimensions": [
-        {"name": "Brand Distinctiveness & Memorability", "score": 9.0, "reasoning": "..."},
+        {"name": "Brand Distinctiveness & Memorability", "score": 9.0, "reasoning": "Strengths:\\n..."},
         {"name": "Cultural & Linguistic Resonance", "score": 8.5, "reasoning": "..."},
         {"name": "Premiumisation & Trust Curve", "score": 8.0, "reasoning": "..."},
         {"name": "Scalability & Brand Architecture", "score": 9.0, "reasoning": "..."},
@@ -94,6 +94,12 @@ Output JSON Structure:
           ],
           "strategy_note": "Strategic advice on domain acquisition..."
       },
+      "visibility_analysis": {
+          "google_presence": ["Title of Result 1", "Title of Result 2"],
+          "app_store_presence": ["App Name 1", "App Name 2"],
+          "warning_triggered": true,
+          "warning_reason": "Top result is a verified movie title."
+      },
       "cultural_analysis": [
         {
           "country": "India",
@@ -103,20 +109,16 @@ Output JSON Structure:
         }
       ],
       "final_assessment": {
-          "verdict_statement": "A nuanced final verdict statement (e.g., 'X is a viable brand if...').",
+          "verdict_statement": "A nuanced final verdict statement.",
           "suitability_score": 7.5,
           "dimension_breakdown": [
               {"Linguistic Foundation": 8.0},
-              {"Consumer Perception": 6.0},
-              {"Competitive Differentiation": 7.5},
-              {"International Extensibility": 8.5}
+              {"Consumer Perception": 6.0}
           ],
           "recommendations": [
-              {"title": "Invest heavily in founder narrative", "content": "The name's weakness must be compensated by..."},
-              {"title": "Execute rigorous consumer testing", "content": "A/B test against alternatives..."},
-              {"title": "Secure trademark immediately", "content": "Conduct Class 25 search..."}
+              {"title": "Invest heavily", "content": "..."}
           ],
-          "alternative_path": "If aiming for higher premium positioning, consider alternative naming strategy..."
+          "alternative_path": "..."
       }
     }
   ],
