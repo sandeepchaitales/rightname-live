@@ -204,7 +204,6 @@ export const DomainAvailabilityCard = ({ analysis }) => {
                 
                 <div>
                     <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Alternatives</h4>
-export { VisibilityAnalysisCard } from './VisibilityComponent';
                     <ul className="space-y-3">
                         {analysis.alternatives.map((alt, i) => (
                             <li key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm bg-slate-50 p-3 rounded-lg gap-2">
@@ -298,3 +297,5 @@ export const FinalAssessmentCard = ({ assessment }) => {
         </Card>
     );
 };
+
+export { VisibilityAnalysisCard } from './VisibilityComponent';
