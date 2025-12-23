@@ -1,114 +1,155 @@
-<analysis>**original_problem_statement**: The user wants to build a consulting-grade brand name evaluation system named RIGHTNAME. This system should analyze brand names based on user inputs such as category, positioning, and market scope (countries). The output must be an interactive dashboard with an optional investor-ready PDF export.
+<analysis>**original_problem_statement**: The user wants to build a consulting-grade brand name evaluation system named RIGHTNAME. This system should analyze brand names based on a rich set of user inputs including industry, category, product type, USP, brand vibe, and market scope. The output must be an interactive dashboard with an optional investor-ready PDF export.
 
-The analysis needs to be based on multiple frameworks (Brand Distinctiveness, Cultural & Linguistic Resonance, etc.), produce a composite NameScore Index (0-100), and include detailed sections like a Trademark Risk Matrix, Competitive Landscape analysis, Domain Availability check, and a final strategic verdict. The quality and depth of the analysis should be equivalent to that of top consulting firms like McKinsey or BCG. The system must also be able to handle single-country, multi-country, and global scopes, adapting its analysis accordingly.
+PRODUCT REQUIREMENTS:
+1.  **Core Analysis**: The system must analyze names against multiple frameworks (Brand Distinctiveness, Cultural Resonance, Trademark Risk, etc.).
+2.  **NameScore Index**: Produce a composite NameScore Index (0-100) and a final verdict (GO, CONDITIONAL GO, REJECT, NO-GO).
+3.  **Advanced Competitor Analysis**:
+    *   Implement a Strategic Positioning Matrix with real competitors and dynamic, category-specific axes.
+    *   Use Customer Avatar and Intent Matching to distinguish true competitors from Name Twins or keyword-only matches, preventing false positives.
+4.  **Advanced Availability Checks**:
+    *   Perform multi-domain checks beyond  (e.g., , , , ) based on the product category and country.
+    *   Check social media handle availability (Instagram, Twitter, etc.).
+    *   Domain availability should be a minor risk factor, not a reason for automatic rejection. Rejection should only be based on active trademarks or operating businesses in the same category.
+5.  **Plan B Feature**: For rejected names, suggest 3-4 alternative brand names. This feature must identify poison words (the source of the conflict) and ensure suggestions do not contain them.
+6.  **UI/UX**: Provide a rich input form on the landing page to capture detailed business context and display all analysis results in a structured, multi-section dashboard.
+7.  **Pricing Logic**: For rejected names, sections like Recommended Pricing should display N/A for logical consistency.
 
 **User's preferred language**: English
 
-**what currently exists?**: A full-stack application with a React frontend and a FastAPI backend has been developed. The application features a landing page for users to input brand names and other criteria. Upon submission, it calls a backend endpoint that uses an LLM (GPT-4o) to generate a detailed analysis report. The frontend dashboard is designed to display this report in a structured, multi-section format, including text analysis, tables, and charts (Radar and Scatter Plot). The application also includes functionality for real-time domain availability checks () and a web/app store visibility check. A print-friendly CSS has been implemented for PDF export.
+**what currently exists?**: A full-stack React/FastAPI application that provides a detailed brand name analysis. The backend takes comprehensive user inputs, constructs a detailed prompt with business context, and uses GPT-4o to generate a structured JSON report. The frontend consists of a detailed input form and a multi-section dashboard to render the analysis, including text, scores, and charts. Most of the core features requested by the user, including advanced competitor analysis, multi-domain/social checks, and the Plan B feature, have been implemented. The application was working, but the user has just reported that report generation is failing again.
 
-**Last working item**: The agent was attempting to resolve a persistent Evaluation failed error that occurs during report generation. This error is caused by a  exception, indicating that the JSON structure returned by the LLM does not match the Pydantic models defined in the backend. The last action was to modify  in an attempt to make the validation more flexible and align with the LLM's output.
+**Last working item**: The user reported Unable to Generate Report, Resolve It. The agent had just finished implementing the dynamic Strategic Positioning Matrix and was attempting to verify the frontend implementation when the user reported the new failure.
 
-- **Last item agent was working**: Fixing recurring  errors during report generation.
+- **Last item agent was working**: Investigating the new Unable to Generate Report failure.
 - **Status**: IN PROGRESS
 - **Agent Testing Done**: N
-- **Which testing method agent to use?**: manual testing by curl. The agent needs to trigger the  endpoint and inspect the backend logs () to see the exact LLM output and compare it against the Pydantic models in .
+- **Which testing method agent to use?**: First, manual testing by  to check the  endpoint. Second, inspect backend logs (INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'prompts.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1543]
+INFO:     Started server process [1580]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1580]
+INFO:     Started server process [1665]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1665]
+INFO:     Stopping reloader process [605]
+INFO:     Will watch for changes in these directories: ['/app/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [1856] using WatchFiles
+INFO:     Started server process [1858]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno 111] Connection refused
+/app/backend/visibility.py:12: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+INFO:primp:response: https://www.bing.com/search?q=Gleam 200
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno 111] Connection refused
+WARNING:root:Social check error for twitter/gleam: 400, message='Got more than 8190 bytes (9916) when reading Header value is too long.', url='https://twitter.com/gleam'
+[92m18:51:21 - LiteLLM:INFO[0m: utils.py:3427 - 
+LiteLLM completion() model= gpt-4o; provider = openai
+INFO:LiteLLM:
+LiteLLM completion() model= gpt-4o; provider = openai
+[92m18:52:15 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno 111] Connection refused
+/app/backend/visibility.py:12: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+INFO:primp:response: https://www.bing.com/search?q=Gleam 200
+INFO:primp:response: https://www.bing.com/search?q=Gleam&first=11&FORM=PERE 200
+INFO:primp:response: https://www.bing.com/search?q=Gleam&first=21&FORM=PERE1 200
+INFO:primp:response: https://www.bing.com/search?q=Gleam&first=31&FORM=PERE2 200
+INFO:primp:response: https://www.bing.com/search?q=Gleam&first=41&FORM=PERE3 200
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno 111] Connection refused
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno 111] Connection refused
+WARNING:root:Social check error for twitter/gleam: 400, message='Got more than 8190 bytes (9916) when reading Header value is too long.', url='https://twitter.com/gleam'
+[92m18:52:43 - LiteLLM:INFO[0m: utils.py:3427 - 
+LiteLLM completion() model= gpt-4o; provider = openai
+INFO:LiteLLM:
+LiteLLM completion() model= gpt-4o; provider = openai
+[92m18:53:36 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:root:Direct JSON parsing failed, applying cleanup and repair...
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/app/backend/visibility.py:12: RuntimeWarning: This package (`duckduckgo_search`) has been renamed to `ddgs`! Use `pip install ddgs` instead.
+  with DDGS() as ddgs:
+INFO:primp:response: https://www.bing.com/search?q=Luxoriya 200
+ERROR:whois.whois:Error trying to connect to socket: closing socket - [Errno -2] Name or service not known
+WARNING:root:Social check error for twitter/luxoriya: 400, message='Got more than 8190 bytes (9916) when reading Header value is too long.', url='https://twitter.com/luxoriya'
+[92m18:57:49 - LiteLLM:INFO[0m: utils.py:3427 - 
+LiteLLM completion() model= gpt-4o; provider = openai
+INFO:LiteLLM:
+LiteLLM completion() model= gpt-4o; provider = openai
+INFO:openai._base_client:Retrying request to /chat/completions in 0.478644 seconds
+INFO:openai._base_client:Retrying request to /chat/completions in 0.936716 seconds
+[92m19:00:49 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
+INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
+INFO:root:Direct JSON parsing failed, applying cleanup and repair...
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+/root/.venv/lib/python3.11/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected 10 fields but got 5: Expected `Message` - serialized value may not be as expected [field_name='message', input_value=Message(content='```json\...ields={'refusal': None}), input_type=Message])
+  PydanticSerializationUnexpectedValue(Expected `StreamingChoices` - serialized value may not be as expected [field_name='choices', input_value=Choices(finish_reason='st...ider_specific_fields={}), input_type=Choices])
+  return self.__pydantic_serializer__.to_python(
+INFO:     Will watch for changes in these directories: ['/app/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [28] using WatchFiles). Third, use the  tool with  on the frontend during form submission to capture any client-side errors.
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- Issue 1: Persistent Evaluation failed. Please try again. error (P0)
+-   **Issue 1**: Unable to generate report (P0)
+-   **Issue 2**: Missing  dependency (P2)
 
 **Issues Detail**:
-- **Issue 1**: The  endpoint frequently fails, preventing users from generating reports.
-  - **Attempted fixes**: The agent has repeatedly modified  to make the instructions stricter and  to make the models more flexible (e.g., using , , default values). It also implemented a retry mechanism in . These fixes have not been successful because the LLM output structure remains inconsistent.
-  - **Next debug checklist**:
-    1.  Trigger an analysis and capture the full, raw JSON output from the LLM that causes the  error from the backend logs.
-    2.  Compare the failing JSON structure field-by-field with the Pydantic models in .
-    3.  Identify the exact field(s) causing the mismatch.
-    4.  Update  to correctly handle the structure the LLM is actually returning (e.g., it might be returning a string instead of a list, or a nested object might be missing).
-    5.  Consider adding a pre-validation step in  to clean or transform the LLM's JSON string *before* it's passed to the Pydantic model for parsing.
-  - **Why fix this issue and what will be achieved with the fix?**: This is the core functionality of the application. Fixing it will make the application usable.
-  - **Status**: IN PROGRESS
-  - **Is recurring issue?**: Y
-  - **Should Test frontend/backend/both after fix?**: backend
-  - **Blocked on other issue**: None
-
-**In progress Task List**:
-None. The only active task is fixing the critical issue above.
-
-**Upcoming and Future Tasks**:
--   **Task 1: Install  dependency (P1)**: The agent repeatedly removed code that relied on  instead of installing the missing dependency. This has disabled UI animations. The dependency needs to be added to the project.
-    -   **Action**: Run yarn add v1.22.22
-[1/4] Resolving packages...
-[2/4] Fetching packages...
-[3/4] Linking dependencies...
-[4/4] Building fresh packages...
-success Saved lockfile.
-success Saved 3 new dependencies.
-info Direct dependencies
-└─ framer-motion@12.23.26
-info All dependencies
-├─ framer-motion@12.23.26
-├─ motion-dom@12.23.23
-└─ tslib@2.8.1
-Done in 3.57s. in the  directory.
-    -   **Files to check**:  to potentially restore animation code that was removed.
-
-**Completed work in this session**:
--   **UI/UX Overhaul**: Redesigned the landing page and dashboard for a premium SaaS product look and feel.
--   **Competitive Landscape Analysis**: Added a section with a scatter plot visualization () to map competitors.
--   **Real-time Domain Check**: Integrated a  lookup to provide accurate domain availability.
--   **Visibility Warning Module**: Implemented a web and app store scraping feature to check for brand name collisions, with graceful error handling.
--   **Trademark Analysis Enhancement**: Upgraded the Trademark Risk Matrix to include suggested trademark classes based on the user's category input.
--   **Clear No-Go Logic**: Updated the backend prompt to provide a strong NO-GO verdict if an exact brand match is found in the same category.
--   **PDF/Print Export**: Implemented print-specific CSS for professional, well-formatted PDF exports, including fixes for page breaks and layout issues.
--   **Consulting-Grade Content**: Iteratively refined the backend prompts to produce deeper, more structured, and higher-value analytical content as requested by the user.
--   **Scoring Display Fix**: Corrected the frontend to display scores correctly (e.g., 8/10 instead of 80/10).
--   **Currency Localization**: Updated prompts to use local currency symbols (e.g., ₹ for India) in the competitive analysis.
-
-**Earlier issues found/mentioned but not fixed**:
--   **Issue 1: Missing  dependency**:
-    -   **Debug checklist**: The agent incorrectly identified the problem as faulty code and removed animation features from . The actual issue is a missing npm package.
-    -   **Why to solve this issue and what will be achieved with this?**: To restore the intended UI micro-interactions and animations for a more polished user experience, as requested by the user.
-    -   **Should Test frontend/backend/both after fix**: frontend
+-   **Issue 1**:
+    -   **Description**: After a period of stability, the core report generation functionality is failing again, making the application unusable. This was reported immediately after the Strategic Positioning Matrix feature was completed.
+    -   **Attempted fixes**: None yet for this specific occurrence. Previous, similar issues were related to JSON parsing from the LLM and were resolved with a robust cleaning/repair function. This could be a regression or a new type of error.
+    -   **Next debug checklist**:
+        1.  Check the backend logs () for any new errors.
+        2.  Run a  command against the  endpoint with a known good payload to isolate whether the issue is in the backend or frontend.
+        3.  Use the  tool to submit the form and open the browser's developer console to check for JavaScript errors.
+        4.  Review the latest changes in  and  to ensure the payload from the newly added form fields is being constructed and handled correctly.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical, show-stopper bug. Fixing it will restore the application's core functionality.
+    -   **Status**: NOT STARTED
     -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: both
+    -   **Blocked on other issue**: None
 
-**Known issue recurrence from previous fork**:
-None.
-
-**Code Architecture**:
-
-
-**Key Technical Concepts**:
--   **Backend**: FastAPI, Pydantic for data validation, LiteLLM for interacting with OpenAI.
--   **Frontend**: React,  for charts,  for rendering.
--   **Core Logic**: Dynamically generating a complex JSON report via an LLM based on a detailed system prompt and validating the output against a strict Pydantic schema.
--   **Integrations**:  for domain checks,  and  for visibility checks.
-
-**key DB schema**:
--   No database is used. Each analysis is a stateless transaction processed in memory.
-
-**changes in tech stack**:
-None. The stack has remained FastAPI, React, and MongoDB (though MongoDB is not currently in use).
-
-**All files of reference**:
--   **/app/backend/server.py**: Contains the core  endpoint, LLM call, and error handling. It's central to the main bug.
--   **/app/backend/schemas.py**: Defines the Pydantic models. This file is critical for debugging the validation error.
--   **/app/backend/prompts.py**: Holds the large, complex prompt sent to the LLM. The structure of this prompt dictates the JSON output.
--   **/app/frontend/src/pages/LandingPage.js**: The user-facing input form.
--   **/app/frontend/src/pages/Dashboard.js**: The main component that structures and displays the entire analysis report.
--   **/app/frontend/src/components/AnalysisComponents.js**: Contains the individual UI components for each section of the report (e.g., , ).
--   **/app/frontend/src/index.css**: Contains global styles and crucial  rules for PDF export.
-
-**Areas that need refactoring**:
--   The error handling in  could be more robust. Instead of just catching a  and returning a generic 500 error, it could log the malformed JSON from the LLM to make debugging easier.
-
-**key api endpoints**:
--   : Takes brand names and other criteria, calls the LLM, and returns the full analysis report as JSON. This is the primary and most critical endpoint.
-
-**Critical Info for New Agent**:
--   The most critical and recurring issue is the  error. The core of your work will be to stabilize the interaction between the LLM and the backend. Do not assume the LLM will follow the prompt perfectly. Your primary focus should be on debugging the JSON output vs. the Pydantic schema.
--   The user is very particular about the consulting-grade quality of both the content and the UI/PDF presentation. Pay close attention to their detailed feedback on formatting, content depth, and visual layout.
--   The  dependency is missing. To fix UI animations, you will need to run yarn add v1.22.22
+-   **Issue 2**:
+    -   **Description**: The  package is not installed in the frontend, which disables UI animations and may have caused code to be removed in previous sessions.
+    -   **Attempted fixes**: None.
+    -   **Next debug checklist**:
+        1.  Navigate to the  directory.
+        2.  Run yarn add v1.22.22
 [1/4] Resolving packages...
 [2/4] Fetching packages...
 [3/4] Linking dependencies...
@@ -118,48 +159,113 @@ info Direct dependencies
 └─ framer-motion@12.23.26
 info All dependencies
 └─ framer-motion@12.23.26
-Done in 0.60s. in the  directory.
+Done in 3.27s..
+        3.  Restart the frontend service.
+        4.  Inspect  and other components to see if animation-related code needs to be restored.
+    -   **Why fix this issue and what will be achieved with the fix?**: This will restore the intended UI polish and micro-interactions, improving the user experience.
+    -   **Status**: NOT STARTED
+    -   **Is recurring issue?**: Y
+    -   **Should Test frontend/backend/both after fix?**: frontend
+    -   **Blocked on other issue**: None
 
-**documents and test_reports created in this job**:
--   /app/design_guidelines.json
--   /app/test_reports/iteration_1.json
+**In progress Task List**:
+None.
 
-**Last 10 User Messages and any pending HUMAN messages**:
-1. If their exists a brand name with exact name as searched by user under same category then the system should generate clear no go and warn about it found exact name match under same category or similar category !
-2. Code failed to generate report , resolve it
-3. Website not working , unable to generate report ! Resolve it
-4. Great The tool must give clear no go , if it finds existing brand name with exact match ! So it’s important to check if there is already a brand name exist with Same name in same category!
-5. It’s great that legal risk matrix is perfect , but because user already gives input what is the brand and what is the business category , why not suggest under what classes should be trademarks filed
-6. In domain scout section Show 3-4 alternatives not just one In competition Positioning Matrix, User expects to see a visual Scatter Plot (dots on a grid), not a text table telling them where the dots would be
-7. Again it’s says , evaluation failed please try again
-8. As usual it’s not working , unable to generate report
-9. I am validating the report content. Do not modify the Executive Summary, IP Strategy, or Brand Dimensions sections—retain them exactly as they are word-for-word. Edit ONLY the 'Competitive Landscape' section...
-10. As usual it’s not working , resolve
+**Upcoming and Future Tasks**:
+None. The priority is to fix the outstanding critical issue.
+
+**Completed work in this session**
+-   **JSON Stability**: Fixed persistent LLM-related JSON parsing errors (invalid control characters, missing commas, broken strings) by implementing a multi-step JSON cleaning and repair utility in .
+-   **Plan B Feature**: Implemented a feature to suggest alternative names for REJECT verdicts, including a Poison Word detector to ensure suggestions are conflict-free.
+-   **Enhanced Inputs**: Overhauled the  form to include new dropdowns and inputs for Industry, Product Type, USP, and Brand Vibe to provide richer context to the LLM.
+-   **Advanced Availability Checks**: Added real-time Multi-Domain Check (for category/country-specific TLDs) and Social Handle Availability checks.
+-   **Logic Refinements**:
+    -   Adjusted scoring logic so that a taken  domain is a minor risk, not a cause for rejection.
+    -   Implemented Customer Avatar Test and Intent Matching to filter out false-positive competitor conflicts.
+    -   Ensured sections like Recommended Pricing show N/A for rejected names.
+-   **Dynamic Positioning Matrix**: Implemented a Strategic Positioning Matrix that uses real competitors and dynamically sets its axes based on the user's category.
+-   **Frontend Bug Fixes**: Resolved a JSX syntax error in  and a duplicate variable declaration in .
+
+**Earlier issues found/mentioned but not fixed**
+-   **Issue 1**: Missing  dependency. (Same as Issue 2 in the pending list).
+
+**Known issue recurrence from previous fork**
+- The  dependency has been missing since the previous fork. Report generation failures are also a recurring theme, though the root causes have differed.
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Backend**: FastAPI, Pydantic, LiteLLM (for OpenAI)
+-   **Frontend**: React, recharts, shadcn/ui
+-   **Core Logic**: LLM-driven report generation, complex prompt engineering, robust JSON parsing/repair, and real-time data scraping.
+-   **Integrations**: , , , .
+
+**key DB schema**
+-   No database is in use.
+
+**changes in tech stack**
+-   Added  and  Python packages.
+
+**All files of reference**
+-   **/app/backend/server.py**: Main API logic, extensively modified with JSON repair functions and new feature integrations.
+-   **/app/backend/prompts.py**: The brain of the application, heavily updated with new rules for all implemented features.
+-   **/app/backend/schemas.py**: Pydantic models, updated frequently to match changes in .
+-   **/app/backend/availability.py**: New module for multi-domain and social media handle checks.
+-   **/app/frontend/src/pages/LandingPage.js**: Form UI, completely overhauled with new input fields.
+-   **/app/frontend/src/pages/Dashboard.js**: Main report layout, updated to include new component cards.
+-   **/app/frontend/src/components/AnalysisComponents.js**: Contains most UI cards, significantly expanded to support new features and fix bugs.
+-   **/app/frontend/src/components/VisibilityComponent.js**: UI for visibility analysis, updated to show advanced conflict classification (Customer Avatar, Intent).
+
+**Areas that need refactoring**:
+-   The custom JSON repair logic in  has become very complex through iterative fixes. It is a potential source of brittleness and could be reviewed for simplification.
+
+**key api endpoints**
+-   : The single, critical endpoint that orchestrates the entire brand analysis.
+
+**Critical Info for New Agent**
+-   Your immediate priority is to diagnose and fix the Unable to generate report error. This is a show-stopper. Start by checking backend logs and testing the API with .
+-   The user provides excellent, specific, and actionable feedback. Follow their critiques closely, as they have consistently improved the product's logic.
+-   The interaction between the LLM's output and the Pydantic schemas in  has been the primary source of bugs. While the JSON repair logic is much better now, be prepared to debug this interface again.
+-   Do not forget to address the missing  dependency once the critical bug is resolved.
+
+**documents and test_reports created in this job**
+-   /app/test_reports/iteration_2.json
+
+**Last 10 User Messages and any pending HUMAN messages**
+1.  Unable to Generate Report , Resolve It
+2.  Everything is great except Strategic Positioning Matrix is empty. And x axis and y axis are defined vaguely , define x axis and y axis based on the product category . Find real competition and apply position matrix
+3.  In inputs add below options so that LLM can take more informed decisions...
+4.  ERROR in ./src/components/VisibilityComponent.js ; resolve it
+5.  ...The system sees the words Name and Maker and assumes both products do the same thing. It fails to realize that making Name Art for Instagram is completely different from analyzing Brand Names for Startups.
+6.  You must force the LLM to compare who the customer is. If the customers are different, it is not a fatal conflict.
+7.  Step X: Conflict Relevance Analysis... Do not reject a name based on Name Twins.
+8.  CRITICAL: Domain availability rules CHANGED... NEVER auto-reject on domain alone.
+9.  WHAT IS THE BASIS FOR EXCUETIVE SUNMARY IN THE REPORT
+10. ne Minor Tweak Needed (The Pricing)... It doesn't make sense to recommend pricing for a name you just told them to kill
 
 **Project Health Check:**
--   **Backend**: BROKEN - The core  endpoint is non-functional due to persistent LLM output validation errors.
--   **Frontend**: MOCKED - The frontend is likely renderable but is unable to perform its primary function of displaying analysis reports.
+-   **Backend**: BROKEN
+-   **Frontend**: MOCKED
 
-**3rd Party Integrations**:
--   OpenAI GPT-4o — uses Emergent LLM Key (via LiteLLM)
+**3rd Party Integrations**
+-   OpenAI GPT-4o — uses Emergent LLM Key
 -    (Domain Check)
 -    (Web Search)
 -    (App Store Search)
+-    (Social Handle Check)
 
-**Testing status**:
--   Testing agent used after significant changes: YES (early in the project)
+**Testing status**
+-   Testing agent used after significant changes: YES
 -   Troubleshoot agent used after agent stuck in loop: NO
 -   Test files created:
     - 
-    - 
-    - 
-    - 
-    - 
-    - 
--   Known regressions: UI animations are disabled due to the missing  dependency.
+-   Known regressions:
+    - Core report generation functionality is currently broken.
+    - UI animations are disabled due to the missing  dependency.
 
 **Credentials to test flow:**
 N/A
 
-**What agent forgot to execute**:
-- The agent failed to install the  dependency after adding code that required it, leading to a series of frontend build errors and the eventual removal of the animation features.</analysis>
+**What agent forgot to execute**
+-   The agent has consistently failed to install the  dependency, which was noted in the initial handoff summary.</analysis>
