@@ -201,7 +201,12 @@ const CompetitiveMatrixChart = ({ competitors }) => {
     );
 };
 
-export const CompetitionAnalysis = ({ data }) => {
+export const CompetitionAnalysis = ({ data, verdict }) => {
+    // Check if pricing should be shown (only for GO/CONDITIONAL GO)
+    const isPricingApplicable = verdict && !['REJECT', 'NO-GO'].includes(verdict.toUpperCase());
+    const pricingText = data.suggested_pricing || '';
+    const isNAPricing = pricingText.toLowerCase().includes('n/a') || pricingText.toLowerCase().includes('not applicable');
+    
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left: White Space & Strategy */}
