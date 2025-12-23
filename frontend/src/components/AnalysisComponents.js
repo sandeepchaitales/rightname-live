@@ -12,9 +12,6 @@ import { Progress } from "@/components/ui/progress";
 // --- Design System Tokens ---
 const CARD_STYLE = "bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden";
 
-// --- Design System Tokens ---
-const CARD_STYLE = "bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 rounded-2xl overflow-hidden";
-
 // --- Sub-Components ---
 
 const CustomTick = ({ payload, x, y, cx, cy, ...rest }) => {
