@@ -29,7 +29,49 @@ Compare the User's Business Category against each Found App/Brand's actual funct
 | **NAME TWIN** (Low Risk) | Same name but COMPLETELY DIFFERENT vertical | User="B2B Analytics SaaS", Found="Zephyr Photo Art Maker" | → Move to "Market Noise" section, NOT a rejection factor |
 | **NOISE** (Ignore) | Low quality, spam, or clearly unrelated | Found="zephyr_gaming_2019 inactive account" | → Omit entirely |
 
-### 0.2 CUSTOMER AVATAR TEST (MANDATORY VALIDATION)
+### 0.2 INTENT MATCHING TEST (CRITICAL - Avoid False Positives)
+**WARNING: Do NOT use keyword matching. Use INTENT matching.**
+
+Keyword matching causes FALSE POSITIVES. Example:
+- "RIGHTNAME" = Brand name ANALYSIS tool for trademark/business viability
+- "Stylish Name Art Maker" = Decorative TEXT ART creation for Instagram
+
+Both contain "Name" but have COMPLETELY DIFFERENT intents:
+| Product | Core Intent | User Goal |
+|---------|-------------|-----------|
+| RIGHTNAME | Analyze brand names for business risk | "Is this name safe to trademark?" |
+| Name Art Maker | Create decorative text graphics | "Make my Instagram bio look cool" |
+
+**INTENT MATCHING RULE:**
+```
+STEP 1: What does the USER'S product DO? (Core purpose)
+STEP 2: What does the FOUND product DO? (Core purpose)  
+STEP 3: Are they solving the SAME PROBLEM for the SAME USE CASE?
+```
+
+**If intents are DIFFERENT → NOT a conflict, even if keywords overlap!**
+
+**False Positive Examples to AVOID:**
+| User's Product | Found Product | Shared Keyword | WRONG Classification | CORRECT Classification |
+|----------------|---------------|----------------|----------------------|------------------------|
+| Brand Name Analyzer | Name Art Maker | "Name" | ❌ Fatal Conflict | ✅ Market Noise (different intent) |
+| Data Analytics Platform | Analytics Game Stats | "Analytics" | ❌ Fatal Conflict | ✅ Market Noise (B2B vs Gaming) |
+| CloudSync Enterprise | Cloud Wallpapers HD | "Cloud" | ❌ Fatal Conflict | ✅ Market Noise (B2B software vs wallpapers) |
+| PayFlow B2B Payments | PayFlow Meditation | "PayFlow" | ❌ Fatal Conflict | ✅ Market Noise (fintech vs wellness) |
+
+**INTENT Classification Examples:**
+```
+User: "RightName" - Brand name analysis tool for startups
+Intent: Help businesses evaluate trademark risk
+
+Found: "Stylish Name Art Maker"
+Intent: Create decorative text art for social media
+
+RESULT: DIFFERENT INTENTS → Market Noise (NOT a conflict)
+Reason: Analyzing brand names ≠ Making decorative text art
+```
+
+### 0.3 CUSTOMER AVATAR TEST (MANDATORY VALIDATION)
 **For EVERY potential conflict, you MUST perform the Customer Avatar Test before classifying as FATAL:**
 
 **Step 1: Define the User's Customer Avatar**
