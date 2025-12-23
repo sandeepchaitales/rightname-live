@@ -441,4 +441,65 @@ export const FinalAssessmentCard = ({ assessment }) => {
     );
 };
 
+// Plan B - Alternative Names Card for REJECT/NO-GO verdicts
+export const AlternativeNamesCard = ({ alternatives, verdict }) => {
+    if (!alternatives || !['REJECT', 'NO-GO'].includes(verdict?.toUpperCase())) return null;
+
+    return (
+        <Card className={`${CARD_STYLE} ring-2 ring-amber-200 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50`}>
+            <CardHeader className="bg-amber-500 text-white p-6">
+                <div className="flex items-center gap-2 mb-1">
+                    <Lightbulb className="w-5 h-5 text-amber-100" />
+                    <CardTitle className="text-lg font-bold tracking-tight">Plan B: Alternative Names</CardTitle>
+                </div>
+                <p className="text-amber-100 text-sm font-medium">Since the original name faces conflicts, consider these alternatives</p>
+            </CardHeader>
+            
+            <CardContent className="p-6">
+                {/* Reasoning */}
+                <div className="mb-6 p-4 bg-white rounded-xl border border-amber-200">
+                    <p className="text-sm text-slate-700 font-medium leading-relaxed italic">
+                        "{alternatives.reasoning}"
+                    </p>
+                </div>
+
+                {/* Alternative Suggestions */}
+                <div className="space-y-4">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-amber-700 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" /> Suggested Alternatives
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {alternatives.suggestions.map((alt, i) => (
+                            <div 
+                                key={i} 
+                                className="p-4 bg-white rounded-xl border-2 border-amber-200 hover:border-amber-400 hover:shadow-md transition-all group"
+                            >
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">
+                                        {i + 1}
+                                    </span>
+                                    <h5 className="font-bold text-slate-900 text-lg group-hover:text-amber-600 transition-colors">
+                                        {alt.name}
+                                    </h5>
+                                </div>
+                                <p className="text-xs text-slate-600 leading-relaxed">
+                                    {alt.rationale}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Call to Action */}
+                <div className="mt-6 p-4 bg-amber-100 rounded-xl border border-amber-200 flex items-start gap-3">
+                    <Info className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-amber-800 font-medium">
+                        Run a new analysis with any of these alternatives to get a full evaluation report.
+                    </p>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
 export { VisibilityAnalysisCard } from './VisibilityComponent';
