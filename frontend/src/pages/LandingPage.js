@@ -243,13 +243,26 @@ const LandingPage = () => {
             </div>
         </div>
 
-        {/* Trust Badges Row - Scrolling */}
-        <div className="mb-12 overflow-hidden">
-          <div className="flex items-center justify-center gap-3 flex-wrap">
-            <TrustPill icon={ShieldCheck} text="TRUSTED" color="bg-emerald-100 text-emerald-700 border-2 border-emerald-200" />
-            <TrustPill icon={CheckCircle} text="RELIABLE" color="bg-blue-100 text-blue-700 border-2 border-blue-200" />
-            <TrustPill icon={Star} text="SOUND" color="bg-amber-100 text-amber-700 border-2 border-amber-200" />
-            <TrustPill icon={Trophy} text="PROVEN" color="bg-violet-100 text-violet-700 border-2 border-violet-200" />
+        {/* Trusted By - Animated Carousel at Top */}
+        <div className="mb-10 text-center">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-4">Trusted By</p>
+          <div className="flex justify-center items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border-2 border-slate-100 shadow-md animate-fade-in-up" style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0s' }}>
+              <Users className="w-5 h-5 text-violet-600" />
+              <span className="font-bold text-slate-700">Brand Consultants</span>
+            </div>
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border-2 border-slate-100 shadow-md" style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0.2s', opacity: 0 }}>
+              <Rocket className="w-5 h-5 text-fuchsia-600" />
+              <span className="font-bold text-slate-700">Startup Founders</span>
+            </div>
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border-2 border-slate-100 shadow-md" style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0.4s', opacity: 0 }}>
+              <Building2 className="w-5 h-5 text-orange-500" />
+              <span className="font-bold text-slate-700">Consulting Firms</span>
+            </div>
+            <div className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-full border-2 border-slate-100 shadow-md" style={{ animation: 'fadeInUp 0.6s ease-out forwards', animationDelay: '0.6s', opacity: 0 }}>
+              <Briefcase className="w-5 h-5 text-emerald-600" />
+              <span className="font-bold text-slate-700">Marketing Agencies</span>
+            </div>
           </div>
         </div>
 
