@@ -554,6 +554,26 @@ Return ONLY valid JSON.
       "visibility_analysis": {
           "user_product_intent": "What does the USER'S product DO? (e.g., 'Analyze brand names for trademark risk')",
           "user_customer_avatar": "Who buys the User's product (e.g., 'Startup founders, Brand consultants')",
+          "phonetic_conflicts": [
+              {
+                  "CRITICAL_CHECK": "MANDATORY: Search for phonetically similar names in SAME category!",
+                  "input_name": "User's brand name",
+                  "phonetic_variants": ["List 5+ spelling variants with same pronunciation"],
+                  "ipa_pronunciation": "/IPA transcription/",
+                  "found_conflict": {
+                      "name": "Phonetically similar app/brand found (e.g., UnQue for Unqueue)",
+                      "spelling_difference": "How it's spelled differently",
+                      "category": "Their category (MUST CHECK if same as user's)",
+                      "app_store_link": "Play Store or App Store URL",
+                      "downloads": "Download count or user base",
+                      "company": "Company/developer name",
+                      "is_active": true
+                  },
+                  "conflict_type": "FATAL_PHONETIC_CONFLICT / NONE",
+                  "legal_risk": "HIGH - Passing-off, Consumer Confusion",
+                  "verdict_impact": "If same category + active business = REJECT"
+              }
+          ],
           "direct_competitors": [
               {
                   "name": "Competitor App Name", 
@@ -581,8 +601,8 @@ Return ONLY valid JSON.
           "google_presence": [],
           "app_store_presence": [],
           "warning_triggered": false,
-          "warning_reason": "ONLY trigger warning for DIRECT COMPETITORS with SAME INTENT + SAME CUSTOMERS",
-          "conflict_summary": "X direct competitors (same intent + same customers). Y false positives filtered (keyword matches with different intents)."
+          "warning_reason": "ONLY trigger warning for DIRECT COMPETITORS with SAME INTENT + SAME CUSTOMERS, or PHONETIC CONFLICTS in same category",
+          "conflict_summary": "X direct competitors. Y phonetic conflicts (CRITICAL if same category). Z false positives filtered."
       },
       
       "cultural_analysis": [
