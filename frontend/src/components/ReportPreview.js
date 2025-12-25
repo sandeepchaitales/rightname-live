@@ -1,193 +1,358 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Star, Shield, Globe, TrendingUp, Lock, Sparkles, CheckCircle2, BarChart3 } from "lucide-react";
+import { Star, Shield, Globe, TrendingUp, Lock, Sparkles, CheckCircle2, BarChart3, AlertTriangle, Users, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Sample report data for preview
+// Sample full report data for carousel
 const sampleReport = {
     brandName: "TechNova",
     score: 87,
     verdict: "GO",
-    executiveSummary: "TechNova presents a strong, distinctive brand identity with excellent trademark clearance and high memorability scores. Strategic positioning aligns perfectly with the premium tech market.",
+    executiveSummary: "TechNova presents a strong, distinctive brand identity with excellent trademark clearance and high memorability scores. Strategic positioning aligns perfectly with the premium tech market. The name carries a futuristic connotation while maintaining accessibility.",
     dimensions: [
-        { name: "Distinctiveness", score: 9.2 },
-        { name: "Memorability", score: 8.8 },
-        { name: "Trust Curve", score: 8.5 },
-        { name: "Cultural Fit", score: 9.0 },
+        { name: "Distinctiveness", score: 9.2, color: "emerald" },
+        { name: "Memorability", score: 8.8, color: "violet" },
+        { name: "Trust Curve", score: 8.5, color: "blue" },
+        { name: "Cultural Fit", score: 9.0, color: "fuchsia" },
+        { name: "Phonetic Appeal", score: 8.7, color: "orange" },
+        { name: "Digital Presence", score: 7.9, color: "cyan" },
     ],
-    strengths: [
-        "Unique phonetic structure",
-        "Strong tech association",
-        "Available .com domain"
-    ]
+    strengths: ["Unique phonetic structure", "Strong tech association", "Available .com domain", "No trademark conflicts"],
+    risks: ["Similar to 'Nova' brands in aerospace", "May need education in non-English markets"],
+    competitors: [
+        { name: "TechCore", similarity: 45, intent: "Low" },
+        { name: "NovaTech Systems", similarity: 72, intent: "Medium" },
+        { name: "Innovate Labs", similarity: 38, intent: "Low" },
+    ],
+    domains: [
+        { domain: "technova.com", status: "Available", price: "$2,500" },
+        { domain: "technova.io", status: "Available", price: "$49/yr" },
+        { domain: "technova.ai", status: "Taken", alternative: "gettechnova.ai" },
+    ],
+    cultural: [
+        { country: "USA", score: 9.2, note: "Strong tech connotation" },
+        { country: "India", score: 8.8, note: "Positive innovation association" },
+        { country: "Germany", score: 8.5, note: "Professional sound" },
+    ],
+    trademarkRisk: "LOW",
+    finalVerdict: "PROCEED WITH CONFIDENCE"
 };
 
-// Score Card Preview
-const ScoreCardPreview = ({ isHovered }) => (
-    <div className={`transition-all duration-500 ${isHovered ? 'scale-105' : ''}`}>
-        <div className="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-4">
-                <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">RIGHTNAME™ INDEX</p>
-                    <p className="text-[10px] text-slate-400">Composite Consulting Grade</p>
-                </div>
-                <CheckCircle2 className="w-6 h-6 text-emerald-500" />
-            </div>
-            <div className="text-center">
-                <span className="text-6xl font-black text-emerald-600">{sampleReport.score}</span>
-                <span className="text-2xl text-slate-400">/100</span>
-            </div>
-            <div className="mt-4 flex justify-center">
-                <Badge className="bg-emerald-500 text-white font-bold px-4 py-1 text-sm">
+// Slide 1: Score & Summary
+const SlideScoreSummary = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
+            {/* Score Card */}
+            <div className="bg-gradient-to-br from-emerald-50 to-white border-2 border-emerald-200 rounded-2xl p-6 flex flex-col items-center justify-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-2">RIGHTNAME™ INDEX</p>
+                <div className="text-7xl font-black text-emerald-600">{sampleReport.score}</div>
+                <div className="text-xl text-slate-400 font-bold">/100</div>
+                <Badge className="mt-4 bg-emerald-500 text-white font-bold px-6 py-2 text-lg">
                     {sampleReport.verdict}
                 </Badge>
             </div>
+            
+            {/* Summary */}
+            <div className="flex flex-col justify-center">
+                <h3 className="text-4xl font-black text-slate-900 mb-4">{sampleReport.brandName}</h3>
+                <div className="flex items-center gap-2 mb-4">
+                    <Star className="w-5 h-5 text-amber-500" />
+                    <span className="text-sm font-bold uppercase text-amber-600">Executive Summary</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">{sampleReport.executiveSummary}</p>
+            </div>
         </div>
     </div>
 );
 
-// Dimensions Preview Card
-const DimensionsPreview = ({ isHovered }) => (
-    <div className={`transition-all duration-500 ${isHovered ? 'scale-105' : ''}`}>
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-lg">
-            <div className="flex items-center gap-2 mb-4">
-                <BarChart3 className="w-4 h-4 text-violet-500" />
-                <p className="text-xs font-bold uppercase tracking-widest text-violet-600">Dimensions Analysis</p>
-            </div>
-            <div className="space-y-3">
-                {sampleReport.dimensions.map((dim, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                        <span className="text-xs font-medium text-slate-600 w-24 truncate">{dim.name}</span>
-                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div 
-                                className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full transition-all duration-1000"
-                                style={{ width: `${dim.score * 10}%` }}
-                            />
-                        </div>
-                        <span className="text-xs font-bold text-slate-700 w-8">{dim.score}</span>
+// Slide 2: Dimensions Analysis
+const SlideDimensions = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-5 h-5 text-violet-500" />
+            <h3 className="text-xl font-bold text-slate-900">Dimensions Analysis</h3>
+            <Badge variant="outline" className="ml-auto">6 Frameworks</Badge>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {sampleReport.dimensions.map((dim, i) => (
+                <div key={i} className="bg-slate-50 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="font-bold text-slate-700">{dim.name}</span>
+                        <span className="text-lg font-black text-slate-900">{dim.score}/10</span>
                     </div>
-                ))}
+                    <div className="h-3 bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-1000"
+                            style={{ width: `${dim.score * 10}%` }}
+                        />
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+// Slide 3: Strengths & Risks
+const SlideStrengthsRisks = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-full">
+            {/* Strengths */}
+            <div className="bg-emerald-50 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <h4 className="font-bold text-emerald-700">Key Strengths</h4>
+                </div>
+                <ul className="space-y-3">
+                    {sampleReport.strengths.map((s, i) => (
+                        <li key={i} className="flex items-start gap-2 text-slate-700">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></span>
+                            {s}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            
+            {/* Risks */}
+            <div className="bg-amber-50 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <AlertTriangle className="w-5 h-5 text-amber-600" />
+                    <h4 className="font-bold text-amber-700">Potential Risks</h4>
+                </div>
+                <ul className="space-y-3">
+                    {sampleReport.risks.map((r, i) => (
+                        <li key={i} className="flex items-start gap-2 text-slate-700">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 mt-2 flex-shrink-0"></span>
+                            {r}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     </div>
 );
 
-// Executive Summary Preview
-const SummaryPreview = ({ isHovered }) => (
-    <div className={`transition-all duration-500 ${isHovered ? 'scale-105' : ''}`}>
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-lg">
-            <div className="flex items-center gap-2 mb-3">
-                <Star className="w-4 h-4 text-amber-500" />
-                <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Executive Summary</p>
-            </div>
-            <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">
-                {sampleReport.executiveSummary}
+// Slide 4: Competitor Analysis
+const SlideCompetitors = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="flex items-center gap-2 mb-6">
+            <Users className="w-5 h-5 text-blue-500" />
+            <h3 className="text-xl font-bold text-slate-900">Competitor Analysis</h3>
+        </div>
+        <div className="space-y-4">
+            {sampleReport.competitors.map((comp, i) => (
+                <div key={i} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
+                    <div>
+                        <h4 className="font-bold text-slate-800">{comp.name}</h4>
+                        <p className="text-sm text-slate-500">Market overlap: {comp.similarity}%</p>
+                    </div>
+                    <Badge className={comp.intent === 'Low' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
+                        {comp.intent} Risk
+                    </Badge>
+                </div>
+            ))}
+        </div>
+        <div className="mt-6 p-4 bg-blue-50 rounded-xl">
+            <p className="text-sm text-blue-700">
+                <strong>Analysis:</strong> No direct competitors with identical positioning. Market differentiation opportunity is strong.
             </p>
         </div>
     </div>
 );
 
-// Locked Section Preview (teaser)
-const LockedPreview = ({ title, icon: Icon }) => (
-    <div className="relative">
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-lg filter blur-[2px]">
-            <div className="h-3 w-3/4 bg-slate-200 rounded mb-2"></div>
-            <div className="h-3 w-1/2 bg-slate-200 rounded mb-3"></div>
-            <div className="grid grid-cols-2 gap-2">
-                <div className="h-8 bg-slate-100 rounded"></div>
-                <div className="h-8 bg-slate-100 rounded"></div>
-            </div>
+// Slide 5: Domain & Digital
+const SlideDomains = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="flex items-center gap-2 mb-6">
+            <Globe className="w-5 h-5 text-cyan-500" />
+            <h3 className="text-xl font-bold text-slate-900">Domain Availability</h3>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-2xl">
-            <div className="text-center">
-                <Lock className="w-5 h-5 mx-auto mb-1 text-slate-400" />
-                <p className="text-xs font-bold text-slate-500">{title}</p>
-            </div>
+        <div className="space-y-4">
+            {sampleReport.domains.map((d, i) => (
+                <div key={i} className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${d.status === 'Available' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                        <span className="font-mono font-bold text-slate-800">{d.domain}</span>
+                    </div>
+                    <div className="text-right">
+                        <Badge className={d.status === 'Available' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
+                            {d.status}
+                        </Badge>
+                        <p className="text-xs text-slate-500 mt-1">{d.price || d.alternative}</p>
+                    </div>
+                </div>
+            ))}
         </div>
     </div>
 );
 
-// Main Stacked Cards Component for Landing Page
-export const ReportPreviewCards = () => {
-    const [hoveredCard, setHoveredCard] = useState(null);
+// Slide 6: Cultural Analysis
+const SlideCultural = () => (
+    <div className="bg-white rounded-2xl p-8 h-full">
+        <div className="flex items-center gap-2 mb-6">
+            <Globe className="w-5 h-5 text-fuchsia-500" />
+            <h3 className="text-xl font-bold text-slate-900">Cultural Resonance</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {sampleReport.cultural.map((c, i) => (
+                <div key={i} className="bg-gradient-to-br from-fuchsia-50 to-white border border-fuchsia-200 rounded-xl p-5 text-center">
+                    <div className="text-3xl mb-2">
+                        {c.country === 'USA' ? '🇺🇸' : c.country === 'India' ? '🇮🇳' : '🇩🇪'}
+                    </div>
+                    <h4 className="font-bold text-slate-800 mb-1">{c.country}</h4>
+                    <div className="text-2xl font-black text-fuchsia-600 mb-2">{c.score}/10</div>
+                    <p className="text-xs text-slate-500">{c.note}</p>
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+// Slide 7: Final Verdict
+const SlideFinalVerdict = () => (
+    <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-8 h-full text-white">
+        <div className="flex flex-col items-center justify-center h-full text-center">
+            <Zap className="w-16 h-16 mb-4 opacity-90" />
+            <h3 className="text-3xl font-black mb-2">Final Verdict</h3>
+            <div className="text-5xl font-black mb-4">{sampleReport.finalVerdict}</div>
+            <div className="flex items-center gap-4 mb-6">
+                <div className="bg-white/20 rounded-xl px-4 py-2">
+                    <span className="text-sm opacity-80">Trademark Risk</span>
+                    <div className="font-bold">{sampleReport.trademarkRisk}</div>
+                </div>
+                <div className="bg-white/20 rounded-xl px-4 py-2">
+                    <span className="text-sm opacity-80">Score</span>
+                    <div className="font-bold">{sampleReport.score}/100</div>
+                </div>
+            </div>
+            <p className="text-white/80 max-w-md">
+                This brand name has passed all critical checks and is ready for market launch.
+            </p>
+        </div>
+    </div>
+);
+
+// All slides
+const slides = [
+    { component: SlideScoreSummary, title: "Score & Summary" },
+    { component: SlideDimensions, title: "Dimensions" },
+    { component: SlideStrengthsRisks, title: "Analysis" },
+    { component: SlideCompetitors, title: "Competitors" },
+    { component: SlideDomains, title: "Domains" },
+    { component: SlideCultural, title: "Cultural" },
+    { component: SlideFinalVerdict, title: "Verdict" },
+];
+
+// Main Auto-Sliding Carousel
+export const ReportCarousel = () => {
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
+
+    useEffect(() => {
+        if (isPaused) return;
+        
+        const interval = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % slides.length);
+        }, 4000);
+        
+        return () => clearInterval(interval);
+    }, [isPaused]);
+
+    const goToSlide = (index) => {
+        setCurrentSlide(index);
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    };
+
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+    };
+
+    const CurrentSlideComponent = slides[currentSlide].component;
 
     return (
-        <div className="py-16 px-4">
-            <div className="max-w-6xl mx-auto">
-                {/* Section Header */}
-                <div className="text-center mb-12">
+        <div className="py-16 px-4 bg-gradient-to-b from-slate-50 to-white">
+            <div className="max-w-5xl mx-auto">
+                {/* Header */}
+                <div className="text-center mb-10">
                     <Badge className="bg-violet-100 text-violet-700 font-bold mb-4">
-                        <Sparkles className="w-3 h-3 mr-1" /> PREVIEW
+                        <Sparkles className="w-3 h-3 mr-1" /> SAMPLE REPORT
                     </Badge>
                     <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-3">
-                        See What You'll Get
+                        What You'll Get
                     </h2>
                     <p className="text-slate-500 max-w-lg mx-auto">
-                        Here's a sneak peek of the comprehensive analysis for <span className="font-bold text-violet-600">"{sampleReport.brandName}"</span>
+                        Full analysis for <span className="font-bold text-violet-600">"{sampleReport.brandName}"</span> — auto-playing preview
                     </p>
                 </div>
 
-                {/* Brand Name Display */}
-                <div className="text-center mb-8">
-                    <h3 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tight">
-                        {sampleReport.brandName}
-                    </h3>
-                    <div className="flex justify-center gap-2 mt-3">
-                        <Badge className="bg-slate-900 text-white">{sampleReport.verdict}</Badge>
-                        <Badge variant="outline" className="text-slate-500">Premium Tech</Badge>
+                {/* Carousel Container */}
+                <div 
+                    className="relative"
+                    onMouseEnter={() => setIsPaused(true)}
+                    onMouseLeave={() => setIsPaused(false)}
+                >
+                    {/* Navigation Arrows */}
+                    <button 
+                        onClick={prevSlide}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors"
+                    >
+                        <ChevronLeft className="w-5 h-5 text-slate-600" />
+                    </button>
+                    <button 
+                        onClick={nextSlide}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-slate-50 transition-colors"
+                    >
+                        <ChevronRight className="w-5 h-5 text-slate-600" />
+                    </button>
+
+                    {/* Slide Content */}
+                    <div className="bg-gradient-to-br from-violet-100 via-fuchsia-50 to-orange-50 rounded-3xl p-4 shadow-xl shadow-violet-200/30 min-h-[400px]">
+                        <div className="transition-all duration-500 ease-in-out">
+                            <CurrentSlideComponent />
+                        </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mt-4 h-1 bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300"
+                            style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
+                        />
+                    </div>
+
+                    {/* Slide Indicators */}
+                    <div className="flex justify-center gap-2 mt-6">
+                        {slides.map((slide, index) => (
+                            <button
+                                key={index}
+                                onClick={() => goToSlide(index)}
+                                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                                    currentSlide === index 
+                                        ? 'bg-violet-600 text-white shadow-lg' 
+                                        : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                                }`}
+                            >
+                                {slide.title}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* Stacked Cards Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-                    {/* Score Card - Main */}
-                    <div 
-                        className="md:col-span-1 cursor-pointer transform transition-all duration-300 hover:-translate-y-2"
-                        onMouseEnter={() => setHoveredCard('score')}
-                        onMouseLeave={() => setHoveredCard(null)}
-                    >
-                        <ScoreCardPreview isHovered={hoveredCard === 'score'} />
+                {/* Lock indicator */}
+                <div className="mt-8 text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-sm text-slate-500">
+                        <Lock className="w-4 h-4" />
+                        <span>Register free to generate your own report</span>
                     </div>
-
-                    {/* Summary Card */}
-                    <div 
-                        className="md:col-span-2 cursor-pointer transform transition-all duration-300 hover:-translate-y-2"
-                        onMouseEnter={() => setHoveredCard('summary')}
-                        onMouseLeave={() => setHoveredCard(null)}
-                    >
-                        <SummaryPreview isHovered={hoveredCard === 'summary'} />
-                    </div>
-
-                    {/* Dimensions Card */}
-                    <div 
-                        className="md:col-span-2 cursor-pointer transform transition-all duration-300 hover:-translate-y-2"
-                        onMouseEnter={() => setHoveredCard('dimensions')}
-                        onMouseLeave={() => setHoveredCard(null)}
-                    >
-                        <DimensionsPreview isHovered={hoveredCard === 'dimensions'} />
-                    </div>
-
-                    {/* Locked Preview */}
-                    <div className="md:col-span-1 transform transition-all duration-300 hover:-translate-y-1">
-                        <LockedPreview title="Trademark Risk" icon={Shield} />
-                    </div>
-                </div>
-
-                {/* Strengths Pills */}
-                <div className="flex flex-wrap justify-center gap-2 mt-8">
-                    {sampleReport.strengths.map((strength, i) => (
-                        <Badge key={i} variant="outline" className="bg-white text-slate-600 border-slate-200 font-medium">
-                            <CheckCircle2 className="w-3 h-3 mr-1 text-emerald-500" />
-                            {strength}
-                        </Badge>
-                    ))}
                 </div>
             </div>
         </div>
     );
 };
 
-// Compact Preview for Auth Modal
+// Compact Preview for Auth Modal (keeping the old one)
 export const ReportPreviewCompact = () => (
     <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 mb-6 border border-slate-100">
         <div className="flex items-center gap-2 mb-3">
@@ -233,4 +398,4 @@ export const ReportPreviewCompact = () => (
     </div>
 );
 
-export default ReportPreviewCards;
+export default ReportCarousel;
