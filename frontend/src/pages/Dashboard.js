@@ -669,14 +669,39 @@ const Dashboard = () => {
                         </div>
                         {isAuthenticated ? (
                             <div className="space-y-3">
-                                {brand.multi_domain_availability?.domains?.map((d, i) => (
-                                    <DomainCard key={i} domain={d.domain} status={d.status} note={d.registrar} />
+                                {/* Category Domains */}
+                                {brand.multi_domain_availability?.category_domains?.map((d, i) => (
+                                    <DomainCard key={`cat-${i}`} domain={d.domain} status={d.status || (d.available ? 'Available' : 'Taken')} />
                                 ))}
-                                {brand.domain_analysis && (
+                                {/* Country Domains */}
+                                {brand.multi_domain_availability?.country_domains?.map((d, i) => (
+                                    <DomainCard key={`country-${i}`} domain={d.domain} status={d.status || (d.available ? 'Available' : 'Taken')} />
+                                ))}
+                                {/* Fallback: domains array */}
+                                {brand.multi_domain_availability?.domains?.map((d, i) => (
+                                    <DomainCard key={`dom-${i}`} domain={d.domain} status={d.status} note={d.registrar} />
+                                ))}
+                                {/* Domain alternatives from domain_analysis */}
+                                {brand.domain_analysis?.alternatives?.map((alt, i) => (
+                                    <DomainCard key={`alt-${i}`} domain={alt.domain || alt} status={alt.status || 'Suggested'} />
+                                ))}
+                                {/* Domain Strategy Note */}
+                                {brand.domain_analysis?.strategy_note && (
                                     <PrintCard>
                                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                                             <p className="text-sm text-amber-700">
-                                                <strong>Strategy:</strong> {brand.domain_analysis.strategy_note}
+                                                <strong>💡 Strategy:</strong> {brand.domain_analysis.strategy_note}
+                                            </p>
+                                        </div>
+                                    </PrintCard>
+                                )}
+                                {/* Exact Match Status */}
+                                {brand.domain_analysis?.exact_match_status && (
+                                    <PrintCard>
+                                        <div className={`rounded-xl p-4 ${brand.domain_analysis.exact_match_status === 'AVAILABLE' ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>
+                                            <p className={`text-sm ${brand.domain_analysis.exact_match_status === 'AVAILABLE' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                                <strong>.com Status:</strong> {brand.domain_analysis.exact_match_status} 
+                                                {brand.domain_analysis.risk_level && ` (Risk: ${brand.domain_analysis.risk_level})`}
                                             </p>
                                         </div>
                                     </PrintCard>
