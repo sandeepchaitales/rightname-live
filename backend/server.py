@@ -412,9 +412,154 @@ class UserResponse(BaseModel):
     email: str
     name: str
     picture: Optional[str] = None
+    auth_type: Optional[str] = "google"
 
 class SessionRequest(BaseModel):
     session_id: str
+
+# Email/Password Auth Models
+class EmailRegisterRequest(BaseModel):
+    email: str
+    password: str
+    name: str
+
+class EmailLoginRequest(BaseModel):
+    email: str
+    password: str
+
+@api_router.post("/auth/register")
+async def register_email(request: EmailRegisterRequest, response: Response):
+    """Register a new user with email/password"""
+    # Check if email already exists
+    existing_user = await db.users.find_one({"email": request.email.lower()}, {"_id": 0})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Validate password
+    if len(request.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Hash password
+    hashed_password = pwd_context.hash(request.password)
+    
+    # Create user
+    user_id = f"user_{uuid.uuid4().hex[:12]}"
+    session_token = f"sess_{uuid.uuid4().hex}"
+    
+    await db.users.insert_one({
+        "user_id": user_id,
+        "email": request.email.lower(),
+        "name": request.name,
+        "password_hash": hashed_password,
+        "auth_type": "email",
+        "picture": None,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Create session
+    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    await db.user_sessions.insert_one({
+        "user_id": user_id,
+        "session_token": session_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Set cookie
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=7 * 24 * 60 * 60
+    )
+    
+    return {
+        "user_id": user_id,
+        "email": request.email.lower(),
+        "name": request.name,
+        "picture": None,
+        "auth_type": "email"
+    }
+
+@api_router.post("/auth/login/email")
+async def login_email(request: EmailLoginRequest, response: Response):
+    """Login with email/password"""
+    # Find user
+    user = await db.users.find_one({"email": request.email.lower()}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Check if user has password (email auth)
+    if not user.get("password_hash"):
+        raise HTTPException(status_code=401, detail="This account uses Google Sign-In")
+    
+    # Verify password
+    if not pwd_context.verify(request.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    # Create session
+    session_token = f"sess_{uuid.uuid4().hex}"
+    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    
+    # Remove old sessions
+    await db.user_sessions.delete_many({"user_id": user["user_id"]})
+    
+    await db.user_sessions.insert_one({
+        "user_id": user["user_id"],
+        "session_token": session_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Set cookie
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=7 * 24 * 60 * 60
+    )
+    
+    return {
+        "user_id": user["user_id"],
+        "email": user["email"],
+        "name": user["name"],
+        "picture": user.get("picture"),
+        "auth_type": "email"
+    }
+
+# ==================== REPORT ENDPOINTS ====================
+
+@api_router.get("/reports/{report_id}")
+async def get_report(report_id: str, request: Request):
+    """Get a saved report by ID. Returns full or preview based on auth."""
+    report = await db.evaluations.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    # Check if user is authenticated
+    session_token = request.cookies.get("session_token")
+    is_authenticated = False
+    
+    if session_token:
+        session_doc = await db.user_sessions.find_one({"session_token": session_token}, {"_id": 0})
+        if session_doc:
+            expires_at = session_doc.get("expires_at")
+            if isinstance(expires_at, str):
+                expires_at = datetime.fromisoformat(expires_at)
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            if expires_at >= datetime.now(timezone.utc):
+                is_authenticated = True
+    
+    # Return full report for authenticated users
+    report["is_authenticated"] = is_authenticated
+    return report
 
 @api_router.post("/auth/session")
 async def create_session(request: SessionRequest, response: Response):
