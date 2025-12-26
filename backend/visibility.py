@@ -185,7 +185,8 @@ def search_app_stores_comprehensive(brand_name: str, category: str = "", industr
     1. Exact brand name
     2. Brand + category keywords
     3. Phonetic variants
-    4. Category-only search for market context
+    4. Phonetic variants + category (CRITICAL for finding similar apps)
+    5. Category-only search for market context
     
     Returns:
     {
@@ -209,23 +210,38 @@ def search_app_stores_comprehensive(brand_name: str, category: str = "", industr
     # Extract category keywords
     category_keywords = extract_category_keywords(category, industry)
     
-    # Strategy 1: Exact brand name search
+    # Get phonetic variants upfront
+    phonetic_variants = generate_phonetic_variants(brand_name)
+    logger.info(f"Phonetic variants for '{brand_name}': {phonetic_variants}")
+    
+    # Strategy 1: Exact brand name search (multiple countries)
     logger.info(f"App search Strategy 1: Exact brand name '{brand_name}'")
     results["search_queries_used"].append(f"Exact: {brand_name}")
     
-    exact_results = get_play_store_results(brand_name)
-    for app in exact_results:
-        app_id = app.get("appId", "")
-        if app_id and app_id not in seen_app_ids:
-            seen_app_ids.add(app_id)
-            # Check if app title contains brand name (case insensitive)
-            if brand_name.lower() in app.get("title", "").lower():
-                app["match_type"] = "EXACT"
-                results["exact_matches"].append(app)
-                results["potential_conflicts"].append(app)
-            else:
-                app["match_type"] = "PARTIAL"
-                results["category_competitors"].append(app)
+    for country in ['us', 'in', 'gb']:  # Search US, India, UK
+        exact_results = get_play_store_results(brand_name, country=country)
+        for app in exact_results:
+            app_id = app.get("appId", "")
+            if app_id and app_id not in seen_app_ids:
+                seen_app_ids.add(app_id)
+                app_title_lower = app.get("title", "").lower()
+                brand_lower = brand_name.lower()
+                
+                # Check if app title contains brand name (case insensitive)
+                if brand_lower in app_title_lower:
+                    app["match_type"] = "EXACT"
+                    results["exact_matches"].append(app)
+                    results["potential_conflicts"].append(app)
+                # Also check phonetic variants in title
+                elif any(v.lower() in app_title_lower for v in phonetic_variants):
+                    matched_variant = next((v for v in phonetic_variants if v.lower() in app_title_lower), "")
+                    app["match_type"] = "PHONETIC_EXACT"
+                    app["phonetic_variant"] = matched_variant
+                    results["phonetic_matches"].append(app)
+                    results["potential_conflicts"].append(app)
+                else:
+                    app["match_type"] = "PARTIAL"
+                    results["category_competitors"].append(app)
     
     # Strategy 2: Brand + category combined search
     if category_keywords:
@@ -238,29 +254,38 @@ def search_app_stores_comprehensive(brand_name: str, category: str = "", industr
             logger.info(f"App search Strategy 2: Combined '{query}'")
             results["search_queries_used"].append(f"Combined: {query}")
             
-            combined_results = get_play_store_results(query)
-            for app in combined_results:
-                app_id = app.get("appId", "")
-                if app_id and app_id not in seen_app_ids:
-                    seen_app_ids.add(app_id)
-                    if brand_name.lower() in app.get("title", "").lower():
-                        app["match_type"] = "COMBINED_EXACT"
-                        results["exact_matches"].append(app)
-                        results["potential_conflicts"].append(app)
-                    else:
-                        app["match_type"] = "COMBINED"
-                        results["category_competitors"].append(app)
+            for country in ['us', 'in']:
+                combined_results = get_play_store_results(query, country=country)
+                for app in combined_results:
+                    app_id = app.get("appId", "")
+                    if app_id and app_id not in seen_app_ids:
+                        seen_app_ids.add(app_id)
+                        app_title_lower = app.get("title", "").lower()
+                        brand_lower = brand_name.lower()
+                        
+                        if brand_lower in app_title_lower:
+                            app["match_type"] = "COMBINED_EXACT"
+                            results["exact_matches"].append(app)
+                            results["potential_conflicts"].append(app)
+                        elif any(v.lower() in app_title_lower for v in phonetic_variants):
+                            matched_variant = next((v for v in phonetic_variants if v.lower() in app_title_lower), "")
+                            app["match_type"] = "COMBINED_PHONETIC"
+                            app["phonetic_variant"] = matched_variant
+                            results["phonetic_matches"].append(app)
+                            results["potential_conflicts"].append(app)
+                        else:
+                            app["match_type"] = "COMBINED"
+                            results["category_competitors"].append(app)
             
-            time.sleep(0.5)  # Rate limiting
+            time.sleep(0.3)  # Rate limiting
     
-    # Strategy 3: Phonetic variants
-    phonetic_variants = generate_phonetic_variants(brand_name)
+    # Strategy 3: Phonetic variants alone
     logger.info(f"App search Strategy 3: Phonetic variants {phonetic_variants}")
     
     for variant in phonetic_variants[:3]:  # Limit to top 3 variants
         results["search_queries_used"].append(f"Phonetic: {variant}")
         
-        variant_results = get_play_store_results(variant)
+        variant_results = get_play_store_results(variant, country='us')
         for app in variant_results:
             app_id = app.get("appId", "")
             if app_id and app_id not in seen_app_ids:
@@ -277,15 +302,51 @@ def search_app_stores_comprehensive(brand_name: str, category: str = "", industr
                     if is_close_match(brand_name, app.get("title", "")):
                         results["potential_conflicts"].append(app)
         
-        time.sleep(0.5)
+        time.sleep(0.3)
     
-    # Strategy 4: Category-only search for market context
+    # Strategy 4: CRITICAL - Phonetic variants + category keywords
+    # This is the key to finding "UnQue - Salon Booking App" when searching "Unque"
+    if category_keywords and phonetic_variants:
+        logger.info(f"App search Strategy 4: Phonetic + Category")
+        
+        for variant in phonetic_variants[:2]:  # Top 2 variants
+            for keyword in category_keywords[:2]:  # Top 2 category keywords
+                combo_query = f"{variant} {keyword}"
+                results["search_queries_used"].append(f"Phonetic+Category: {combo_query}")
+                
+                for country in ['us', 'in']:
+                    combo_results = get_play_store_results(combo_query, country=country)
+                    for app in combo_results:
+                        app_id = app.get("appId", "")
+                        if app_id and app_id not in seen_app_ids:
+                            seen_app_ids.add(app_id)
+                            app_title_lower = app.get("title", "").lower()
+                            brand_lower = brand_name.lower()
+                            
+                            # Check for brand name or variants in title
+                            if brand_lower in app_title_lower:
+                                app["match_type"] = "PHONETIC_CATEGORY_EXACT"
+                                results["exact_matches"].append(app)
+                                results["potential_conflicts"].append(app)
+                            elif any(v.lower() in app_title_lower for v in phonetic_variants):
+                                matched_variant = next((v for v in phonetic_variants if v.lower() in app_title_lower), variant)
+                                app["match_type"] = "PHONETIC_CATEGORY"
+                                app["phonetic_variant"] = matched_variant
+                                results["phonetic_matches"].append(app)
+                                results["potential_conflicts"].append(app)
+                            else:
+                                app["match_type"] = "CATEGORY_RELATED"
+                                results["category_competitors"].append(app)
+                
+                time.sleep(0.3)
+    
+    # Strategy 5: Category-only search for market context
     if category_keywords:
         category_query = " ".join(category_keywords[:2])
-        logger.info(f"App search Strategy 4: Category '{category_query}'")
+        logger.info(f"App search Strategy 5: Category '{category_query}'")
         results["search_queries_used"].append(f"Category: {category_query}")
         
-        category_results = get_play_store_results(category_query)
+        category_results = get_play_store_results(category_query, country='us')
         for app in category_results[:10]:  # Limit category results
             app_id = app.get("appId", "")
             if app_id and app_id not in seen_app_ids:
@@ -293,8 +354,19 @@ def search_app_stores_comprehensive(brand_name: str, category: str = "", industr
                 app["match_type"] = "CATEGORY"
                 results["category_competitors"].append(app)
     
+    # Deduplicate potential_conflicts
+    seen_conflict_ids = set()
+    unique_conflicts = []
+    for app in results["potential_conflicts"]:
+        app_id = app.get("appId", "")
+        if app_id not in seen_conflict_ids:
+            seen_conflict_ids.add(app_id)
+            unique_conflicts.append(app)
+    results["potential_conflicts"] = unique_conflicts
+    
     logger.info(f"App search complete: {len(results['exact_matches'])} exact, "
                 f"{len(results['phonetic_matches'])} phonetic, "
+                f"{len(results['potential_conflicts'])} conflicts, "
                 f"{len(results['category_competitors'])} competitors")
     
     return results
