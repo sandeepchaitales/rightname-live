@@ -1261,6 +1261,262 @@ class BrandEvaluationTester:
             self.log_test("ACTUAL IP India Costs - Exception", False, str(e))
             return False
 
+    def test_country_specific_legal_precedents_usa(self):
+        """Test Case 1 - USA: Legal precedents should show US court cases only"""
+        payload = {
+            "brand_names": ["USALegalTest"],
+            "category": "Technology",
+            "positioning": "Premium",
+            "market_scope": "Single Country",
+            "countries": ["USA"]
+        }
+        
+        try:
+            print(f"\n⚖️ Testing Country-Specific Legal Precedents - USA...")
+            print(f"Expected US Cases: Polaroid Corp. v. Polarad Electronics Corp., AMF Inc. v. Sleekcraft Boats, Two Pesos v. Taco Cabana")
+            print(f"Should NOT show: Indian cases like Lakme Ltd. v. Subhash Trading")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Legal Precedents USA - HTTP Error", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Legal Precedents USA - Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                precedent_issues = []
+                
+                # Check if trademark_research exists
+                if "trademark_research" not in brand:
+                    self.log_test("Legal Precedents USA - TM Research Field", False, "trademark_research field missing")
+                    return False
+                
+                tm_research = brand["trademark_research"]
+                if not tm_research:
+                    self.log_test("Legal Precedents USA - TM Research Data", False, "trademark_research is null/empty")
+                    return False
+                
+                # Test 1: Check legal_precedents array exists
+                legal_precedents = tm_research.get("legal_precedents", [])
+                if len(legal_precedents) == 0:
+                    self.log_test("Legal Precedents USA - No Precedents", False, "No legal precedents found")
+                    return False
+                
+                print(f"Found {len(legal_precedents)} legal precedents")
+                
+                # Test 2: Check for US court cases
+                us_courts_found = []
+                indian_courts_found = []
+                
+                for precedent in legal_precedents:
+                    case_name = precedent.get("case_name", "").lower()
+                    court = precedent.get("court", "").lower()
+                    
+                    print(f"  - Case: {precedent.get('case_name', 'N/A')}")
+                    print(f"    Court: {precedent.get('court', 'N/A')}")
+                    
+                    # Check for expected US cases
+                    if any(us_case in case_name for us_case in ["polaroid corp", "amf inc", "two pesos"]):
+                        us_courts_found.append(precedent.get("case_name", ""))
+                    
+                    # Check for US courts
+                    if any(us_court in court for us_court in ["u.s.", "united states", "federal circuit", "supreme court", "circuit", "uspto"]):
+                        us_courts_found.append(f"{precedent.get('case_name', '')} ({precedent.get('court', '')})")
+                    
+                    # Check for Indian cases (should NOT be present)
+                    if any(indian_case in case_name for indian_case in ["lakme", "cadila", "subhash trading"]):
+                        indian_courts_found.append(precedent.get("case_name", ""))
+                    
+                    # Check for Indian courts (should NOT be present)
+                    if any(indian_court in court for indian_court in ["delhi high court", "supreme court of india", "bombay high court", "madras high court"]):
+                        indian_courts_found.append(f"{precedent.get('case_name', '')} ({precedent.get('court', '')})")
+                
+                # Test 3: Verify US cases are present
+                if len(us_courts_found) == 0:
+                    precedent_issues.append("No US court cases found in legal precedents")
+                
+                # Test 4: Verify NO Indian cases are present
+                if len(indian_courts_found) > 0:
+                    precedent_issues.append(f"Found Indian court cases in USA request: {indian_courts_found}")
+                
+                # Test 5: Check for specific expected US cases
+                response_text = json.dumps(data).lower()
+                expected_us_cases = ["polaroid corp", "amf inc", "two pesos"]
+                found_us_cases = [case for case in expected_us_cases if case in response_text]
+                
+                if len(found_us_cases) == 0:
+                    print(f"Warning: None of the expected US landmark cases found: {expected_us_cases}")
+                else:
+                    print(f"✅ Found expected US cases: {found_us_cases}")
+                
+                # Test 6: Check for Indian case names that should NOT be there
+                indian_case_names = ["lakme ltd", "subhash trading", "cadila healthcare"]
+                found_indian_cases = [case for case in indian_case_names if case in response_text]
+                
+                if len(found_indian_cases) > 0:
+                    precedent_issues.append(f"Found Indian case names in USA response: {found_indian_cases}")
+                
+                if precedent_issues:
+                    self.log_test("Legal Precedents USA - Country Specificity", False, "; ".join(precedent_issues))
+                    return False
+                
+                self.log_test("Legal Precedents USA - Country Specificity", True, 
+                            f"US legal precedents correctly shown. US courts found: {len(us_courts_found)}, No Indian cases: ✅")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Legal Precedents USA - JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Legal Precedents USA - Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Legal Precedents USA - Exception", False, str(e))
+            return False
+
+    def test_country_specific_legal_precedents_india(self):
+        """Test Case 2 - India: Legal precedents should show Indian court cases only"""
+        payload = {
+            "brand_names": ["IndiaLegalTest"],
+            "category": "Fashion",
+            "positioning": "Premium",
+            "market_scope": "Single Country",
+            "countries": ["India"]
+        }
+        
+        try:
+            print(f"\n⚖️ Testing Country-Specific Legal Precedents - India...")
+            print(f"Expected Indian Cases: M/S Lakme Ltd. v. M/S Subhash Trading, Cadila Healthcare v. Cadila Pharmaceuticals")
+            print(f"Should NOT show: US cases like Polaroid Corp.")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Legal Precedents India - HTTP Error", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Legal Precedents India - Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                precedent_issues = []
+                
+                # Check if trademark_research exists
+                if "trademark_research" not in brand:
+                    self.log_test("Legal Precedents India - TM Research Field", False, "trademark_research field missing")
+                    return False
+                
+                tm_research = brand["trademark_research"]
+                if not tm_research:
+                    self.log_test("Legal Precedents India - TM Research Data", False, "trademark_research is null/empty")
+                    return False
+                
+                # Test 1: Check legal_precedents array exists
+                legal_precedents = tm_research.get("legal_precedents", [])
+                if len(legal_precedents) == 0:
+                    self.log_test("Legal Precedents India - No Precedents", False, "No legal precedents found")
+                    return False
+                
+                print(f"Found {len(legal_precedents)} legal precedents")
+                
+                # Test 2: Check for Indian court cases
+                indian_courts_found = []
+                us_courts_found = []
+                
+                for precedent in legal_precedents:
+                    case_name = precedent.get("case_name", "").lower()
+                    court = precedent.get("court", "").lower()
+                    
+                    print(f"  - Case: {precedent.get('case_name', 'N/A')}")
+                    print(f"    Court: {precedent.get('court', 'N/A')}")
+                    
+                    # Check for expected Indian cases
+                    if any(indian_case in case_name for indian_case in ["lakme", "cadila", "subhash trading"]):
+                        indian_courts_found.append(precedent.get("case_name", ""))
+                    
+                    # Check for Indian courts
+                    if any(indian_court in court for indian_court in ["delhi high court", "supreme court of india", "bombay high court", "madras high court", "high court"]):
+                        indian_courts_found.append(f"{precedent.get('case_name', '')} ({precedent.get('court', '')})")
+                    
+                    # Check for US cases (should NOT be present)
+                    if any(us_case in case_name for us_case in ["polaroid corp", "amf inc", "two pesos"]):
+                        us_courts_found.append(precedent.get("case_name", ""))
+                    
+                    # Check for US courts (should NOT be present)
+                    if any(us_court in court for us_court in ["u.s. second circuit", "u.s. ninth circuit", "u.s. supreme court", "federal circuit", "uspto"]):
+                        us_courts_found.append(f"{precedent.get('case_name', '')} ({precedent.get('court', '')})")
+                
+                # Test 3: Verify Indian cases are present
+                if len(indian_courts_found) == 0:
+                    precedent_issues.append("No Indian court cases found in legal precedents")
+                
+                # Test 4: Verify NO US cases are present
+                if len(us_courts_found) > 0:
+                    precedent_issues.append(f"Found US court cases in India request: {us_courts_found}")
+                
+                # Test 5: Check for specific expected Indian cases
+                response_text = json.dumps(data).lower()
+                expected_indian_cases = ["lakme", "cadila", "subhash trading"]
+                found_indian_cases = [case for case in expected_indian_cases if case in response_text]
+                
+                if len(found_indian_cases) == 0:
+                    print(f"Warning: None of the expected Indian landmark cases found: {expected_indian_cases}")
+                else:
+                    print(f"✅ Found expected Indian cases: {found_indian_cases}")
+                
+                # Test 6: Check for US case names that should NOT be there
+                us_case_names = ["polaroid corp", "amf inc", "two pesos"]
+                found_us_cases = [case for case in us_case_names if case in response_text]
+                
+                if len(found_us_cases) > 0:
+                    precedent_issues.append(f"Found US case names in India response: {found_us_cases}")
+                
+                if precedent_issues:
+                    self.log_test("Legal Precedents India - Country Specificity", False, "; ".join(precedent_issues))
+                    return False
+                
+                self.log_test("Legal Precedents India - Country Specificity", True, 
+                            f"Indian legal precedents correctly shown. Indian courts found: {len(indian_courts_found)}, No US cases: ✅")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Legal Precedents India - JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Legal Precedents India - Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Legal Precedents India - Exception", False, str(e))
+            return False
+
     def run_currency_tests_only(self):
         """Run only the currency logic tests as requested"""
         print("💰 Starting ACTUAL Country-Specific Trademark Cost Tests...")
