@@ -1121,6 +1121,315 @@ const LockedSection = ({ title, onUnlock }) => (
     </div>
 );
 
+// ============ TRADEMARK RESEARCH SECTION (NEW - Perplexity-Level Analysis) ============
+const TrademarkResearchSection = ({ trademarkResearch, registrationTimeline, mitigationStrategies }) => {
+    if (!trademarkResearch) return null;
+    
+    const getRiskColor = (level) => {
+        const l = (level || '').toLowerCase();
+        if (l === 'critical') return 'bg-red-600 text-white';
+        if (l === 'high') return 'bg-red-100 text-red-700';
+        if (l === 'medium') return 'bg-amber-100 text-amber-700';
+        return 'bg-emerald-100 text-emerald-700';
+    };
+    
+    const getScoreColor = (score) => {
+        if (score >= 7) return 'text-red-600';
+        if (score >= 5) return 'text-amber-600';
+        return 'text-emerald-600';
+    };
+    
+    const getProbabilityColor = (prob) => {
+        if (prob >= 70) return 'bg-emerald-500';
+        if (prob >= 40) return 'bg-amber-500';
+        return 'bg-red-500';
+    };
+    
+    return (
+        <div className="space-y-6">
+            {/* Risk Summary Card */}
+            <PrintCard>
+                <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                    <SubSectionHeader icon={BarChart3} title="Trademark Research Risk Summary" />
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        {/* Overall Risk Score */}
+                        <div className="text-center p-4 bg-slate-50 rounded-xl">
+                            <div className={`text-4xl font-black ${getScoreColor(trademarkResearch.overall_risk_score)}`}>
+                                {trademarkResearch.overall_risk_score}/10
+                            </div>
+                            <div className="text-xs text-slate-500 mt-1">Overall Risk</div>
+                        </div>
+                        
+                        {/* Registration Success */}
+                        <div className="text-center p-4 bg-slate-50 rounded-xl">
+                            <div className="text-4xl font-black text-blue-600">
+                                {trademarkResearch.registration_success_probability}%
+                            </div>
+                            <div className="text-xs text-slate-500 mt-1">Registration Success</div>
+                            <div className={`h-2 rounded-full mt-2 ${getProbabilityColor(trademarkResearch.registration_success_probability)}`} 
+                                 style={{width: `${trademarkResearch.registration_success_probability}%`}}></div>
+                        </div>
+                        
+                        {/* Opposition Probability */}
+                        <div className="text-center p-4 bg-slate-50 rounded-xl">
+                            <div className="text-4xl font-black text-amber-600">
+                                {trademarkResearch.opposition_probability}%
+                            </div>
+                            <div className="text-xs text-slate-500 mt-1">Opposition Risk</div>
+                        </div>
+                        
+                        {/* Total Conflicts */}
+                        <div className="text-center p-4 bg-slate-50 rounded-xl">
+                            <div className="text-4xl font-black text-slate-700">
+                                {trademarkResearch.total_conflicts_found}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-1">Conflicts Found</div>
+                            {trademarkResearch.critical_conflicts_count > 0 && (
+                                <Badge className="bg-red-600 text-white mt-1">{trademarkResearch.critical_conflicts_count} Critical</Badge>
+                            )}
+                        </div>
+                    </div>
+                    
+                    {/* Nice Classification */}
+                    {trademarkResearch.nice_classification && (
+                        <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                            <div className="flex items-center gap-2 mb-2">
+                                <FileText className="w-4 h-4 text-blue-600" />
+                                <span className="font-bold text-blue-700">Nice Classification</span>
+                            </div>
+                            <p className="text-sm text-slate-700">
+                                <span className="font-bold">Class {trademarkResearch.nice_classification.class_number}</span>: {trademarkResearch.nice_classification.class_description}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </PrintCard>
+            
+            {/* Trademark Conflicts */}
+            {trademarkResearch.trademark_conflicts && trademarkResearch.trademark_conflicts.length > 0 && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-red-200">
+                        <SubSectionHeader icon={AlertTriangle} title={`Trademark Conflicts Found (${trademarkResearch.trademark_conflicts.length})`} color="red" />
+                        
+                        <div className="space-y-3">
+                            {trademarkResearch.trademark_conflicts.map((conflict, i) => (
+                                <div key={i} className="p-4 bg-red-50 rounded-xl border border-red-100">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <span className="font-bold text-red-800 text-lg">{conflict.name}</span>
+                                            {conflict.application_number && (
+                                                <span className="ml-2 text-xs text-slate-500">#{conflict.application_number}</span>
+                                            )}
+                                        </div>
+                                        <Badge className={getRiskColor(conflict.risk_level)}>{conflict.risk_level}</Badge>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                        <div><span className="text-slate-500">Source:</span> <span className="font-medium">{conflict.source}</span></div>
+                                        <div><span className="text-slate-500">Status:</span> <span className="font-medium">{conflict.status || 'Unknown'}</span></div>
+                                        <div><span className="text-slate-500">Class:</span> <span className="font-medium">{conflict.class_number || 'N/A'}</span></div>
+                                        <div><span className="text-slate-500">Type:</span> <span className="font-medium">{conflict.conflict_type}</span></div>
+                                    </div>
+                                    {conflict.details && (
+                                        <p className="text-xs text-slate-600 mt-2">{conflict.details}</p>
+                                    )}
+                                    {conflict.url && (
+                                        <a href={conflict.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-block">
+                                            View Source →
+                                        </a>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* Company Conflicts */}
+            {trademarkResearch.company_conflicts && trademarkResearch.company_conflicts.length > 0 && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-amber-200">
+                        <SubSectionHeader icon={Building2} title={`Company Registry Conflicts (${trademarkResearch.company_conflicts.length})`} color="amber" />
+                        
+                        <div className="space-y-3">
+                            {trademarkResearch.company_conflicts.map((conflict, i) => (
+                                <div key={i} className="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div>
+                                            <span className="font-bold text-amber-800">{conflict.name}</span>
+                                            {conflict.cin && (
+                                                <span className="ml-2 text-xs text-slate-500">CIN: {conflict.cin}</span>
+                                            )}
+                                        </div>
+                                        <Badge className={getRiskColor(conflict.risk_level)}>{conflict.risk_level}</Badge>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                        <div><span className="text-slate-500">Status:</span> <span className="font-medium">{conflict.status}</span></div>
+                                        <div><span className="text-slate-500">Industry:</span> <span className="font-medium">{conflict.industry || 'N/A'}</span></div>
+                                        <div><span className="text-slate-500">State:</span> <span className="font-medium">{conflict.state || 'N/A'}</span></div>
+                                        <div><span className="text-slate-500">Source:</span> <span className="font-medium">{conflict.source}</span></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* Common Law Conflicts */}
+            {trademarkResearch.common_law_conflicts && trademarkResearch.common_law_conflicts.length > 0 && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                        <SubSectionHeader icon={Globe} title={`Common Law / Online Presence (${trademarkResearch.common_law_conflicts.length})`} color="slate" />
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {trademarkResearch.common_law_conflicts.map((conflict, i) => (
+                                <div key={i} className="p-3 bg-slate-50 rounded-lg border border-slate-100 text-sm">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium text-slate-800">{conflict.name}</span>
+                                        <Badge className={getRiskColor(conflict.risk_level)}>{conflict.risk_level}</Badge>
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1">
+                                        Platform: {conflict.platform} | Industry Match: {conflict.industry_match ? 'Yes' : 'No'}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* Legal Precedents */}
+            {trademarkResearch.legal_precedents && trademarkResearch.legal_precedents.length > 0 && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-violet-200">
+                        <SubSectionHeader icon={Scale} title="Relevant Legal Precedents" color="violet" />
+                        
+                        <div className="space-y-3">
+                            {trademarkResearch.legal_precedents.map((precedent, i) => (
+                                <div key={i} className="p-4 bg-violet-50 rounded-xl border border-violet-100">
+                                    <div className="font-bold text-violet-800 mb-1">{precedent.case_name}</div>
+                                    <div className="text-xs text-slate-600 mb-2">
+                                        {precedent.court && <span>{precedent.court}</span>}
+                                        {precedent.year && <span> • {precedent.year}</span>}
+                                    </div>
+                                    {precedent.relevance && (
+                                        <p className="text-sm text-slate-700">{precedent.relevance}</p>
+                                    )}
+                                    {precedent.key_principle && (
+                                        <p className="text-xs text-violet-600 mt-2 italic">Key Principle: {precedent.key_principle}</p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* Registration Timeline */}
+            {registrationTimeline && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-blue-200">
+                        <SubSectionHeader icon={Calendar} title="Registration Timeline & Costs" color="blue" />
+                        
+                        <div className="mb-4">
+                            <div className="text-2xl font-bold text-blue-700">{registrationTimeline.estimated_duration}</div>
+                            <div className="text-sm text-slate-500">Estimated registration duration</div>
+                        </div>
+                        
+                        {registrationTimeline.stages && registrationTimeline.stages.length > 0 && (
+                            <div className="space-y-2 mb-4">
+                                {registrationTimeline.stages.map((stage, i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                        <div className="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold text-sm">
+                                            {i + 1}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="font-medium text-slate-800">{stage.stage}</div>
+                                            <div className="text-xs text-slate-500">{stage.duration}</div>
+                                        </div>
+                                        {stage.risk && (
+                                            <Badge variant="outline" className="text-xs">{stage.risk}</Badge>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {registrationTimeline.filing_cost && (
+                                <div className="p-3 bg-emerald-50 rounded-lg">
+                                    <div className="text-xs text-slate-500">Filing Cost</div>
+                                    <div className="font-bold text-emerald-700">{registrationTimeline.filing_cost}</div>
+                                </div>
+                            )}
+                            {registrationTimeline.opposition_defense_cost && (
+                                <div className="p-3 bg-amber-50 rounded-lg">
+                                    <div className="text-xs text-slate-500">Opposition Defense</div>
+                                    <div className="font-bold text-amber-700">{registrationTimeline.opposition_defense_cost}</div>
+                                </div>
+                            )}
+                            {registrationTimeline.total_estimated_cost && (
+                                <div className="p-3 bg-red-50 rounded-lg">
+                                    <div className="text-xs text-slate-500">Total Estimated</div>
+                                    <div className="font-bold text-red-700">{registrationTimeline.total_estimated_cost}</div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* Mitigation Strategies */}
+            {mitigationStrategies && mitigationStrategies.length > 0 && (
+                <PrintCard>
+                    <div className="bg-white rounded-2xl p-6 border border-emerald-200">
+                        <SubSectionHeader icon={Lightbulb} title="Risk Mitigation Strategies" color="emerald" />
+                        
+                        <div className="space-y-3">
+                            {mitigationStrategies.map((strategy, i) => (
+                                <div key={i} className={`p-4 rounded-xl border ${
+                                    strategy.priority === 'HIGH' ? 'bg-red-50 border-red-200' :
+                                    strategy.priority === 'MEDIUM' ? 'bg-amber-50 border-amber-200' :
+                                    'bg-emerald-50 border-emerald-200'
+                                }`}>
+                                    <div className="flex items-start justify-between mb-2">
+                                        <span className="font-bold text-slate-800">{strategy.action}</span>
+                                        <Badge className={
+                                            strategy.priority === 'HIGH' ? 'bg-red-600 text-white' :
+                                            strategy.priority === 'MEDIUM' ? 'bg-amber-500 text-white' :
+                                            'bg-emerald-500 text-white'
+                                        }>{strategy.priority}</Badge>
+                                    </div>
+                                    <p className="text-sm text-slate-600">{strategy.rationale}</p>
+                                    {strategy.estimated_cost && (
+                                        <div className="text-xs text-slate-500 mt-2">Estimated Cost: {strategy.estimated_cost}</div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </PrintCard>
+            )}
+            
+            {/* No Conflicts Found Message */}
+            {(!trademarkResearch.trademark_conflicts || trademarkResearch.trademark_conflicts.length === 0) &&
+             (!trademarkResearch.company_conflicts || trademarkResearch.company_conflicts.length === 0) && (
+                <PrintCard>
+                    <div className="bg-emerald-50 rounded-2xl p-6 border border-emerald-200 text-center">
+                        <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                        <h4 className="font-bold text-emerald-700 text-lg">No Critical Conflicts Found</h4>
+                        <p className="text-sm text-slate-600 mt-2">
+                            Our real-time trademark research did not find any direct trademark or company registry conflicts.
+                            However, we recommend conducting a professional trademark search before filing.
+                        </p>
+                    </div>
+                </PrintCard>
+            )}
+        </div>
+    );
+};
+
 // ============ MAIN DASHBOARD ============
 const Dashboard = () => {
     const location = useLocation();
