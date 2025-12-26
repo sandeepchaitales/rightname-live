@@ -257,49 +257,258 @@ KNOWN_TRADEMARK_DATA = {
     }
 }
 
-# Legal precedents database
+# Legal precedents database - COUNTRY SPECIFIC
 LEGAL_PRECEDENTS_DB = {
-    "phonetic_similarity": [
-        {
-            "case_name": "M/S Lakme Ltd. v. M/S Subhash Trading",
-            "court": "Delhi High Court",
-            "year": "1996",
-            "relevance": "Marks 'Lakme' and 'LikeMe' were found phonetically similar despite spelling differences",
-            "key_principle": "Phonetic similarity alone can constitute grounds for infringement"
-        },
-        {
-            "case_name": "Consitex SA v. Kamini Jain",
-            "court": "Delhi High Court",
-            "year": "2019",
-            "relevance": "Marks 'ZEGNA' and 'JENYA' were ruled phonetically similar",
-            "key_principle": "Visual dissimilarity does not negate phonetic confusion"
-        },
-        {
-            "case_name": "FMI Limited v. Midas Touch Metalloys",
-            "court": "Delhi High Court",
-            "year": "2018",
-            "relevance": "Marks 'INDI' and 'INDEED' found phonetically and structurally similar",
-            "key_principle": "Partial phonetic overlap in same industry creates confusion risk"
-        }
-    ],
-    "fashion": [
-        {
-            "case_name": "Adidas AG v. Ayush Chaddha",
-            "court": "Delhi High Court",
-            "year": "2021",
-            "relevance": "Famous brand protection in fashion/sportswear",
-            "key_principle": "Well-known marks get cross-category protection"
-        }
-    ],
-    "general": [
-        {
-            "case_name": "Cadila Healthcare v. Cadila Pharmaceuticals",
-            "court": "Supreme Court of India",
-            "year": "2001",
-            "relevance": "Landmark case on trademark similarity assessment",
-            "key_principle": "Average consumer with imperfect recollection test"
-        }
-    ]
+    # ============ USA PRECEDENTS ============
+    "USA": {
+        "phonetic_similarity": [
+            {
+                "case_name": "Polaroid Corp. v. Polarad Electronics Corp.",
+                "court": "U.S. Second Circuit Court of Appeals",
+                "year": "1961",
+                "relevance": "Established the 8-factor test for trademark likelihood of confusion analysis",
+                "key_principle": "Multi-factor analysis including similarity of marks, proximity of goods, and buyer sophistication"
+            },
+            {
+                "case_name": "AMF Inc. v. Sleekcraft Boats",
+                "court": "U.S. Ninth Circuit Court of Appeals",
+                "year": "1979",
+                "relevance": "Set standard for likelihood of confusion in similar product markets",
+                "key_principle": "Sound, sight, and meaning test for determining mark similarity"
+            },
+            {
+                "case_name": "In re E.I. DuPont DeNemours & Co.",
+                "court": "U.S. Court of Customs and Patent Appeals",
+                "year": "1973",
+                "relevance": "Established 13-factor test for trademark registration conflicts",
+                "key_principle": "DuPont factors are the standard for USPTO trademark examination"
+            }
+        ],
+        "fashion": [
+            {
+                "case_name": "Christian Louboutin S.A. v. Yves Saint Laurent America",
+                "court": "U.S. Second Circuit Court of Appeals",
+                "year": "2012",
+                "relevance": "Protection of distinctive fashion elements (red sole trademark)",
+                "key_principle": "Single color can function as trademark in fashion industry"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "Two Pesos, Inc. v. Taco Cabana, Inc.",
+                "court": "U.S. Supreme Court",
+                "year": "1992",
+                "relevance": "Landmark case on trade dress protection without secondary meaning",
+                "key_principle": "Inherently distinctive trade dress is protectable without proof of secondary meaning"
+            }
+        ]
+    },
+    # ============ INDIA PRECEDENTS ============
+    "India": {
+        "phonetic_similarity": [
+            {
+                "case_name": "M/S Lakme Ltd. v. M/S Subhash Trading",
+                "court": "Delhi High Court",
+                "year": "1996",
+                "relevance": "Marks 'Lakme' and 'LikeMe' were found phonetically similar despite spelling differences",
+                "key_principle": "Phonetic similarity alone can constitute grounds for infringement"
+            },
+            {
+                "case_name": "Consitex SA v. Kamini Jain",
+                "court": "Delhi High Court",
+                "year": "2019",
+                "relevance": "Marks 'ZEGNA' and 'JENYA' were ruled phonetically similar",
+                "key_principle": "Visual dissimilarity does not negate phonetic confusion"
+            },
+            {
+                "case_name": "FMI Limited v. Midas Touch Metalloys",
+                "court": "Delhi High Court",
+                "year": "2018",
+                "relevance": "Marks 'INDI' and 'INDEED' found phonetically and structurally similar",
+                "key_principle": "Partial phonetic overlap in same industry creates confusion risk"
+            }
+        ],
+        "fashion": [
+            {
+                "case_name": "Adidas AG v. Ayush Chaddha",
+                "court": "Delhi High Court",
+                "year": "2021",
+                "relevance": "Famous brand protection in fashion/sportswear",
+                "key_principle": "Well-known marks get cross-category protection"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "Cadila Healthcare v. Cadila Pharmaceuticals",
+                "court": "Supreme Court of India",
+                "year": "2001",
+                "relevance": "Landmark case on trademark similarity assessment",
+                "key_principle": "Average consumer with imperfect recollection test"
+            }
+        ]
+    },
+    # ============ UK PRECEDENTS ============
+    "UK": {
+        "phonetic_similarity": [
+            {
+                "case_name": "Sabel BV v. Puma AG",
+                "court": "European Court of Justice (applicable in UK)",
+                "year": "1997",
+                "relevance": "Standard for assessing likelihood of confusion between marks",
+                "key_principle": "Global appreciation of visual, aural, and conceptual similarity"
+            },
+            {
+                "case_name": "Specsavers International Healthcare v. Asda Stores",
+                "court": "UK Court of Appeal",
+                "year": "2012",
+                "relevance": "Protection of well-known marks against similar branding",
+                "key_principle": "Average consumer comparison considering imperfect recollection"
+            },
+            {
+                "case_name": "Reed Executive Plc v. Reed Business Information Ltd",
+                "court": "UK Court of Appeal",
+                "year": "2004",
+                "relevance": "Confusion analysis for identical words in different business contexts",
+                "key_principle": "Similarity of services and customer overlap determines infringement"
+            }
+        ],
+        "fashion": [
+            {
+                "case_name": "Burberry Ltd v. J.C. Trading Ltd",
+                "court": "UK High Court",
+                "year": "2014",
+                "relevance": "Protection of iconic fashion patterns and designs",
+                "key_principle": "Check patterns can be protected as registered trademarks"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "Arsenal Football Club Plc v. Reed",
+                "court": "UK High Court / ECJ",
+                "year": "2003",
+                "relevance": "Landmark case on trademark use and origin function",
+                "key_principle": "Trademark protects the guarantee of origin to consumers"
+            }
+        ]
+    },
+    # ============ EU PRECEDENTS ============
+    "EU": {
+        "phonetic_similarity": [
+            {
+                "case_name": "Sabel BV v. Puma AG",
+                "court": "European Court of Justice",
+                "year": "1997",
+                "relevance": "Foundational case for EU trademark confusion analysis",
+                "key_principle": "Global appreciation considering visual, aural, and conceptual similarity"
+            },
+            {
+                "case_name": "Lloyd Schuhfabrik Meyer v. Klijsen Handel",
+                "court": "European Court of Justice",
+                "year": "1999",
+                "relevance": "Standard for assessing similarity of marks",
+                "key_principle": "Average consumer is reasonably well-informed and circumspect"
+            },
+            {
+                "case_name": "Canon Kabushiki Kaisha v. Metro-Goldwyn-Mayer Inc.",
+                "court": "European Court of Justice",
+                "year": "1998",
+                "relevance": "Relationship between mark similarity and goods similarity",
+                "key_principle": "Lesser degree of similarity between goods may be offset by greater similarity between marks"
+            }
+        ],
+        "fashion": [
+            {
+                "case_name": "Adidas-Salomon AG v. Fitnessworld Trading Ltd",
+                "court": "European Court of Justice",
+                "year": "2003",
+                "relevance": "Protection of three-stripe mark in sportswear",
+                "key_principle": "Well-known marks protected against dilution even without confusion"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "L'Oréal SA v. Bellure NV",
+                "court": "European Court of Justice",
+                "year": "2009",
+                "relevance": "Landmark case on trademark dilution and unfair advantage",
+                "key_principle": "Taking unfair advantage of reputation is infringement even without confusion"
+            }
+        ]
+    },
+    # ============ CANADA PRECEDENTS ============
+    "Canada": {
+        "phonetic_similarity": [
+            {
+                "case_name": "Masterpiece Inc. v. Alavida Lifestyles Inc.",
+                "court": "Supreme Court of Canada",
+                "year": "2011",
+                "relevance": "Leading case on trademark confusion analysis in Canada",
+                "key_principle": "First impression and imperfect recollection of average consumer"
+            },
+            {
+                "case_name": "Veuve Clicquot Ponsardin v. Boutiques Cliquot Ltée",
+                "court": "Supreme Court of Canada",
+                "year": "2006",
+                "relevance": "Famous marks protection and dilution analysis",
+                "key_principle": "Famous marks entitled to broader protection against confusion"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "Mattel Inc. v. 3894207 Canada Inc.",
+                "court": "Supreme Court of Canada",
+                "year": "2006",
+                "relevance": "Standard for trademark confusion and famous marks",
+                "key_principle": "Surrounding circumstances test for likelihood of confusion"
+            }
+        ]
+    },
+    # ============ AUSTRALIA PRECEDENTS ============
+    "Australia": {
+        "phonetic_similarity": [
+            {
+                "case_name": "Registrar of Trade Marks v. Woolworths Ltd",
+                "court": "Federal Court of Australia",
+                "year": "1999",
+                "relevance": "Standard for deceptive similarity assessment",
+                "key_principle": "Ordinary person with imperfect recollection test"
+            },
+            {
+                "case_name": "Shell Co. of Australia Ltd v. Esso Standard Oil (Australia) Ltd",
+                "court": "High Court of Australia",
+                "year": "1963",
+                "relevance": "Foundational case on trademark deceptive similarity",
+                "key_principle": "Side-by-side comparison is not the test; imperfect recollection applies"
+            }
+        ],
+        "general": [
+            {
+                "case_name": "Southern Cross Refrigerating Co v Toowoomba Foundry Pty Ltd",
+                "court": "High Court of Australia",
+                "year": "1954",
+                "relevance": "Landmark case defining substantial identity of trademarks",
+                "key_principle": "Essential features comparison for mark similarity"
+            }
+        ]
+    }
+}
+
+# Alias mappings for country name variations
+COUNTRY_ALIASES = {
+    "United States": "USA",
+    "US": "USA",
+    "America": "USA",
+    "United Kingdom": "UK",
+    "Britain": "UK",
+    "Great Britain": "UK",
+    "England": "UK",
+    "European Union": "EU",
+    "Europe": "EU",
+    "Germany": "EU",
+    "France": "EU",
+    "Italy": "EU",
+    "Spain": "EU",
+    "Netherlands": "EU",
 }
 
 
