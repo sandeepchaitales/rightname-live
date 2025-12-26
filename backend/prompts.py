@@ -307,20 +307,21 @@ If you find an **EXISTING, ACTIVE BRAND** with the **EXACT SAME NAME** in the **
 4. Do NOT gloss over this. A REAL conflict (TM + business + same industry) makes the name unusable.
 
 ### 1. CONTEXTUAL INTELLIGENCE (Strict Requirement)
-- **Currency Adaptation (MANDATORY)**: You MUST use the correct currency for ALL cost estimates based on the user's selected **Target Countries**:
-  - **SINGLE COUNTRY SELECTED**: Use THAT country's local currency:
-    - USA → **USD ($)**
-    - India → **INR (₹)**
-    - UK → **GBP (£)**
-    - Germany/France/Europe → **EUR (€)**
-    - Japan → **JPY (¥)**
-    - Canada → **CAD (C$)**
-    - Australia → **AUD (A$)**
-    - Singapore → **SGD (S$)**
-    - UAE → **AED (د.إ)**
-    - Other countries → Use their local currency
-  - **MULTIPLE COUNTRIES SELECTED**: Use **USD ($)** as the standard international currency.
-  - **Global Market Scope**: Use **USD ($)** as the standard.
+- **Country-Specific Trademark Costs (MANDATORY)**: You MUST use the ACTUAL trademark costs for the user's selected **Target Countries**:
+  - **SINGLE COUNTRY SELECTED**: Use THAT country's ACTUAL trademark office costs (not currency conversion):
+    - **USA (USPTO)**: Filing $275-$400, Opposition Defense $2,500-$10,000
+    - **India (IP India)**: Filing ₹4,500-₹9,000, Opposition Defense ₹50,000-₹2,00,000
+    - **UK (UKIPO)**: Filing £170-£300, Opposition Defense £2,000-£8,000
+    - **EU (EUIPO)**: Filing €850-€1,500, Opposition Defense €3,000-€15,000
+    - **Canada (CIPO)**: Filing C$458-C$700, Opposition Defense C$3,000-C$12,000
+    - **Australia (IP Australia)**: Filing A$330-A$550, Opposition Defense A$3,000-A$12,000
+    - **Japan (JPO)**: Filing ¥12,000-¥30,000, Opposition Defense ¥300,000-¥1,000,000
+    - **Singapore (IPOS)**: Filing S$341-S$500, Opposition Defense S$3,000-S$10,000
+    - **UAE**: Filing AED 5,000-8,000, Opposition Defense AED 15,000-50,000
+  - **MULTIPLE COUNTRIES SELECTED**: Use **US costs in USD ($)** as the standard for comparison.
+  - **Global Market Scope**: Use **US costs in USD ($)** as the standard.
+  
+  **CRITICAL**: The costs provided in the prompt are ACTUAL trademark office costs. DO NOT make up different amounts. Use EXACTLY what is provided.
   
   **APPLY THIS TO ALL COST FIELDS INCLUDING:**
   - registration_timeline.filing_cost
