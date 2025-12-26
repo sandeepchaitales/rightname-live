@@ -1139,11 +1139,16 @@ class BrandEvaluationTester:
 
 def main():
     tester = BrandEvaluationTester()
-    success = tester.run_all_tests()
+    
+    # Run only currency tests as per review request
+    print("🎯 FOCUSED TESTING: Currency Logic in RIGHTNAME Brand Evaluation API")
+    print("=" * 70)
+    success = tester.run_currency_tests_only()
     
     # Save detailed results
     with open('/app/backend_test_results.json', 'w') as f:
         json.dump({
+            "test_focus": "Currency Logic Testing",
             "summary": {
                 "tests_run": tester.tests_run,
                 "tests_passed": tester.tests_passed,
