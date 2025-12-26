@@ -1149,8 +1149,8 @@ async def conduct_trademark_research(
             result.company_conflicts.append(c)
             existing_co_names.add(c.name.lower())
     
-    # Step 4: Add relevant legal precedents
-    precedents = get_relevant_precedents(category, industry)
+    # Step 4: Add relevant legal precedents (COUNTRY-SPECIFIC)
+    precedents = get_relevant_precedents(category, industry, countries)
     for p in precedents:
         result.legal_precedents.append(LegalPrecedent(
             case_name=p.get("case_name", ""),
