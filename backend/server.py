@@ -54,63 +54,258 @@ app = FastAPI()
 # Router
 api_router = APIRouter(prefix="/api")
 
-# Country to currency mapping
-COUNTRY_CURRENCY_MAP = {
-    "USA": "USD ($)",
-    "United States": "USD ($)",
-    "India": "INR (₹)",
-    "UK": "GBP (£)",
-    "United Kingdom": "GBP (£)",
-    "Germany": "EUR (€)",
-    "France": "EUR (€)",
-    "Italy": "EUR (€)",
-    "Spain": "EUR (€)",
-    "Netherlands": "EUR (€)",
-    "Belgium": "EUR (€)",
-    "Austria": "EUR (€)",
-    "Ireland": "EUR (€)",
-    "Portugal": "EUR (€)",
-    "Greece": "EUR (€)",
-    "Finland": "EUR (€)",
-    "Japan": "JPY (¥)",
-    "China": "CNY (¥)",
-    "Canada": "CAD (C$)",
-    "Australia": "AUD (A$)",
-    "Singapore": "SGD (S$)",
-    "UAE": "AED (د.إ)",
-    "United Arab Emirates": "AED (د.إ)",
-    "Saudi Arabia": "SAR (ر.س)",
-    "South Korea": "KRW (₩)",
-    "Brazil": "BRL (R$)",
-    "Mexico": "MXN ($)",
-    "Switzerland": "CHF (Fr)",
-    "Sweden": "SEK (kr)",
-    "Norway": "NOK (kr)",
-    "Denmark": "DKK (kr)",
-    "Poland": "PLN (zł)",
-    "Russia": "RUB (₽)",
-    "South Africa": "ZAR (R)",
-    "New Zealand": "NZD (NZ$)",
-    "Thailand": "THB (฿)",
-    "Malaysia": "MYR (RM)",
-    "Indonesia": "IDR (Rp)",
-    "Philippines": "PHP (₱)",
-    "Vietnam": "VND (₫)",
-    "Hong Kong": "HKD (HK$)",
-    "Taiwan": "TWD (NT$)",
-    "Israel": "ILS (₪)",
-    "Turkey": "TRY (₺)",
-    "Egypt": "EGP (E£)",
-    "Nigeria": "NGN (₦)",
-    "Kenya": "KES (KSh)",
-    "Pakistan": "PKR (₨)",
-    "Bangladesh": "BDT (৳)",
-    "Global": "USD ($)",
+# Country-specific ACTUAL trademark costs (not just currency conversion)
+# These are real trademark office costs for each country
+COUNTRY_TRADEMARK_COSTS = {
+    "USA": {
+        "currency": "USD ($)",
+        "office": "USPTO",
+        "filing_cost": "$275-$400 per class",
+        "opposition_defense_cost": "$2,500-$10,000 if contested",
+        "total_estimated_cost": "$3,000-$15,000 depending on opposition",
+        "trademark_search_cost": "$500-$1,500",
+        "logo_design_cost": "$2,000-$10,000",
+        "legal_fees_cost": "$1,500-$5,000"
+    },
+    "United States": {
+        "currency": "USD ($)",
+        "office": "USPTO",
+        "filing_cost": "$275-$400 per class",
+        "opposition_defense_cost": "$2,500-$10,000 if contested",
+        "total_estimated_cost": "$3,000-$15,000 depending on opposition",
+        "trademark_search_cost": "$500-$1,500",
+        "logo_design_cost": "$2,000-$10,000",
+        "legal_fees_cost": "$1,500-$5,000"
+    },
+    "India": {
+        "currency": "INR (₹)",
+        "office": "IP India",
+        "filing_cost": "₹4,500-₹9,000 per class (Startup/Company)",
+        "opposition_defense_cost": "₹50,000-₹2,00,000 if contested",
+        "total_estimated_cost": "₹15,000-₹2,50,000 depending on opposition",
+        "trademark_search_cost": "₹3,000-₹5,000",
+        "logo_design_cost": "₹10,000-₹50,000",
+        "legal_fees_cost": "₹10,000-₹30,000"
+    },
+    "UK": {
+        "currency": "GBP (£)",
+        "office": "UKIPO",
+        "filing_cost": "£170-£300 per class",
+        "opposition_defense_cost": "£2,000-£8,000 if contested",
+        "total_estimated_cost": "£2,500-£12,000 depending on opposition",
+        "trademark_search_cost": "£400-£1,200",
+        "logo_design_cost": "£1,500-£8,000",
+        "legal_fees_cost": "£1,000-£4,000"
+    },
+    "United Kingdom": {
+        "currency": "GBP (£)",
+        "office": "UKIPO",
+        "filing_cost": "£170-£300 per class",
+        "opposition_defense_cost": "£2,000-£8,000 if contested",
+        "total_estimated_cost": "£2,500-£12,000 depending on opposition",
+        "trademark_search_cost": "£400-£1,200",
+        "logo_design_cost": "£1,500-£8,000",
+        "legal_fees_cost": "£1,000-£4,000"
+    },
+    "Germany": {
+        "currency": "EUR (€)",
+        "office": "DPMA",
+        "filing_cost": "€290-€400 per class",
+        "opposition_defense_cost": "€2,000-€8,000 if contested",
+        "total_estimated_cost": "€2,500-€12,000 depending on opposition",
+        "trademark_search_cost": "€400-€1,000",
+        "logo_design_cost": "€1,500-€7,000",
+        "legal_fees_cost": "€1,000-€3,500"
+    },
+    "France": {
+        "currency": "EUR (€)",
+        "office": "INPI",
+        "filing_cost": "€190-€350 per class",
+        "opposition_defense_cost": "€2,000-€7,000 if contested",
+        "total_estimated_cost": "€2,200-€10,000 depending on opposition",
+        "trademark_search_cost": "€350-€900",
+        "logo_design_cost": "€1,500-€7,000",
+        "legal_fees_cost": "€1,000-€3,500"
+    },
+    "EU": {
+        "currency": "EUR (€)",
+        "office": "EUIPO",
+        "filing_cost": "€850-€1,500 (covers all 27 EU countries)",
+        "opposition_defense_cost": "€3,000-€15,000 if contested",
+        "total_estimated_cost": "€4,000-€20,000 depending on opposition",
+        "trademark_search_cost": "€500-€1,500",
+        "logo_design_cost": "€2,000-€10,000",
+        "legal_fees_cost": "€2,000-€6,000"
+    },
+    "Europe": {
+        "currency": "EUR (€)",
+        "office": "EUIPO",
+        "filing_cost": "€850-€1,500 (covers all 27 EU countries)",
+        "opposition_defense_cost": "€3,000-€15,000 if contested",
+        "total_estimated_cost": "€4,000-€20,000 depending on opposition",
+        "trademark_search_cost": "€500-€1,500",
+        "logo_design_cost": "€2,000-€10,000",
+        "legal_fees_cost": "€2,000-€6,000"
+    },
+    "Canada": {
+        "currency": "CAD (C$)",
+        "office": "CIPO",
+        "filing_cost": "C$458-C$700 per class",
+        "opposition_defense_cost": "C$3,000-C$12,000 if contested",
+        "total_estimated_cost": "C$4,000-C$18,000 depending on opposition",
+        "trademark_search_cost": "C$600-C$1,800",
+        "logo_design_cost": "C$2,500-C$12,000",
+        "legal_fees_cost": "C$1,800-C$6,000"
+    },
+    "Australia": {
+        "currency": "AUD (A$)",
+        "office": "IP Australia",
+        "filing_cost": "A$330-A$550 per class",
+        "opposition_defense_cost": "A$3,000-A$12,000 if contested",
+        "total_estimated_cost": "A$4,000-A$18,000 depending on opposition",
+        "trademark_search_cost": "A$500-A$1,500",
+        "logo_design_cost": "A$2,000-A$10,000",
+        "legal_fees_cost": "A$1,500-A$5,000"
+    },
+    "Japan": {
+        "currency": "JPY (¥)",
+        "office": "JPO",
+        "filing_cost": "¥12,000-¥30,000 per class",
+        "opposition_defense_cost": "¥300,000-¥1,000,000 if contested",
+        "total_estimated_cost": "¥400,000-¥1,500,000 depending on opposition",
+        "trademark_search_cost": "¥50,000-¥150,000",
+        "logo_design_cost": "¥200,000-¥800,000",
+        "legal_fees_cost": "¥150,000-¥500,000"
+    },
+    "China": {
+        "currency": "CNY (¥)",
+        "office": "CNIPA",
+        "filing_cost": "¥300-¥800 per class",
+        "opposition_defense_cost": "¥10,000-¥50,000 if contested",
+        "total_estimated_cost": "¥15,000-¥80,000 depending on opposition",
+        "trademark_search_cost": "¥1,000-¥3,000",
+        "logo_design_cost": "¥5,000-¥30,000",
+        "legal_fees_cost": "¥5,000-¥20,000"
+    },
+    "Singapore": {
+        "currency": "SGD (S$)",
+        "office": "IPOS",
+        "filing_cost": "S$341-S$500 per class",
+        "opposition_defense_cost": "S$3,000-S$10,000 if contested",
+        "total_estimated_cost": "S$4,000-S$15,000 depending on opposition",
+        "trademark_search_cost": "S$500-S$1,500",
+        "logo_design_cost": "S$2,000-S$8,000",
+        "legal_fees_cost": "S$1,500-S$5,000"
+    },
+    "UAE": {
+        "currency": "AED (د.إ)",
+        "office": "UAE Ministry of Economy",
+        "filing_cost": "AED 5,000-AED 8,000 per class",
+        "opposition_defense_cost": "AED 15,000-AED 50,000 if contested",
+        "total_estimated_cost": "AED 20,000-AED 80,000 depending on opposition",
+        "trademark_search_cost": "AED 2,000-AED 5,000",
+        "logo_design_cost": "AED 5,000-AED 25,000",
+        "legal_fees_cost": "AED 5,000-AED 15,000"
+    },
+    "South Korea": {
+        "currency": "KRW (₩)",
+        "office": "KIPO",
+        "filing_cost": "₩62,000-₩150,000 per class",
+        "opposition_defense_cost": "₩3,000,000-₩10,000,000 if contested",
+        "total_estimated_cost": "₩4,000,000-₩15,000,000 depending on opposition",
+        "trademark_search_cost": "₩500,000-₩1,500,000",
+        "logo_design_cost": "₩2,000,000-₩8,000,000",
+        "legal_fees_cost": "₩1,500,000-₩5,000,000"
+    },
+    "Brazil": {
+        "currency": "BRL (R$)",
+        "office": "INPI Brazil",
+        "filing_cost": "R$355-R$700 per class",
+        "opposition_defense_cost": "R$5,000-R$25,000 if contested",
+        "total_estimated_cost": "R$8,000-R$40,000 depending on opposition",
+        "trademark_search_cost": "R$1,000-R$3,000",
+        "logo_design_cost": "R$3,000-R$15,000",
+        "legal_fees_cost": "R$2,000-R$8,000"
+    },
+    "Mexico": {
+        "currency": "MXN ($)",
+        "office": "IMPI",
+        "filing_cost": "MXN $2,500-MXN $4,500 per class",
+        "opposition_defense_cost": "MXN $30,000-MXN $100,000 if contested",
+        "total_estimated_cost": "MXN $40,000-MXN $150,000 depending on opposition",
+        "trademark_search_cost": "MXN $5,000-MXN $15,000",
+        "logo_design_cost": "MXN $15,000-MXN $60,000",
+        "legal_fees_cost": "MXN $10,000-MXN $40,000"
+    },
+    # Default for unknown countries (use US costs in USD)
+    "Global": {
+        "currency": "USD ($)",
+        "office": "Multiple Offices",
+        "filing_cost": "$275-$400 per class (US baseline)",
+        "opposition_defense_cost": "$2,500-$10,000 if contested",
+        "total_estimated_cost": "$3,000-$15,000 depending on opposition",
+        "trademark_search_cost": "$500-$1,500",
+        "logo_design_cost": "$2,000-$10,000",
+        "legal_fees_cost": "$1,500-$5,000"
+    }
 }
 
 def get_country_currency(country: str) -> str:
     """Get the currency for a given country. Defaults to USD for unknown countries."""
-    return COUNTRY_CURRENCY_MAP.get(country, "USD ($)")
+    costs = COUNTRY_TRADEMARK_COSTS.get(country, COUNTRY_TRADEMARK_COSTS["Global"])
+    return costs["currency"]
+
+def get_country_trademark_costs(countries: list) -> dict:
+    """
+    Get trademark costs based on selected countries.
+    - Single country: Return that country's actual costs
+    - Multiple countries: Return US costs in USD as standard
+    """
+    if len(countries) == 1:
+        country = countries[0]
+        return COUNTRY_TRADEMARK_COSTS.get(country, COUNTRY_TRADEMARK_COSTS["Global"])
+    else:
+        # Multiple countries - use US costs as standard
+        return COUNTRY_TRADEMARK_COSTS["USA"]
+
+def format_trademark_costs_for_prompt(countries: list) -> str:
+    """Format trademark costs as instruction for the LLM prompt."""
+    costs = get_country_trademark_costs(countries)
+    
+    if len(countries) == 1:
+        country = countries[0]
+        return f"""
+⚠️ COUNTRY-SPECIFIC TRADEMARK COSTS (MANDATORY - USE THESE EXACT VALUES):
+Target Country: {country}
+Trademark Office: {costs['office']}
+Currency: {costs['currency']}
+
+USE THESE COSTS IN YOUR RESPONSE:
+- Filing Cost: {costs['filing_cost']}
+- Opposition Defense Cost: {costs['opposition_defense_cost']}
+- Total Estimated Cost: {costs['total_estimated_cost']}
+- Trademark Search Cost: {costs['trademark_search_cost']}
+- Logo Design Cost: {costs['logo_design_cost']}
+- Legal Fees: {costs['legal_fees_cost']}
+
+IMPORTANT: These are ACTUAL {costs['office']} costs. Do NOT convert to other currencies.
+"""
+    else:
+        return f"""
+⚠️ MULTI-COUNTRY TRADEMARK COSTS (USE USD AS STANDARD):
+Target Countries: {', '.join(countries)}
+Standard Currency: USD ($) (for multi-country comparison)
+
+USE THESE US-BASED COSTS IN YOUR RESPONSE:
+- Filing Cost: {costs['filing_cost']}
+- Opposition Defense Cost: {costs['opposition_defense_cost']}
+- Total Estimated Cost: {costs['total_estimated_cost']}
+- Trademark Search Cost: {costs['trademark_search_cost']}
+- Logo Design Cost: {costs['logo_design_cost']}
+- Legal Fees: {costs['legal_fees_cost']}
+
+IMPORTANT: Use USD ($) for ALL cost estimates when multiple countries are selected.
+"""
 
 def check_domain_availability(brand_name: str) -> str:
     domain = f"{brand_name.lower().replace(' ', '')}.com"
