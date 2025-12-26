@@ -156,7 +156,7 @@ def get_play_store_results(query, country='us'):
             query,
             lang='en',
             country=country,
-            n_hits=10
+            n_hits=5  # Reduced from 10 to avoid rate limiting
         )
         
         if res:
@@ -175,6 +175,9 @@ def get_play_store_results(query, country='us'):
         logger.warning(f"Play Store search type error for '{query}': {str(e)}")
     except Exception as e:
         logger.warning(f"Play Store search failed for '{query}': {str(e)}")
+    
+    # Add delay to avoid rate limiting
+    time.sleep(0.5)
         
     return results
 
