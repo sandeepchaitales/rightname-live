@@ -412,6 +412,25 @@ async def evaluate_brands(request: BrandEvaluationRequest):
     
     similarity_context = "\n\n".join(similarity_data)
     
+    # 1.6 TRADEMARK RESEARCH - Real-time web search for trademark conflicts
+    trademark_research_data = []
+    for brand in request.brand_names:
+        try:
+            research_result = await conduct_trademark_research(
+                brand_name=brand,
+                industry=request.industry or "",
+                category=request.category,
+                countries=request.countries
+            )
+            trademark_research_data.append(format_research_for_prompt(research_result))
+            logging.info(f"Trademark research for '{brand}': Risk {research_result.overall_risk_score}/10, "
+                        f"Conflicts: {research_result.total_conflicts_found}")
+        except Exception as e:
+            logging.error(f"Trademark research failed for '{brand}': {str(e)}")
+            trademark_research_data.append(f"⚠️ Trademark research unavailable for {brand}: {str(e)}")
+    
+    trademark_research_context = "\n\n".join(trademark_research_data)
+    
     # 2. Check Visibility
     visibility_data = []
     for brand in request.brand_names:
