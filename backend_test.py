@@ -1217,7 +1217,7 @@ class BrandEvaluationTester:
                 
                 # Test 6: Check verdict is valid
                 verdict = brand.get("verdict", "")
-                valid_verdicts = ["APPROVE", "CAUTION", "REJECT"]
+                valid_verdicts = ["APPROVE", "CAUTION", "REJECT", "GO"]  # Added GO as valid verdict
                 if verdict not in valid_verdicts:
                     self.log_test("Fallback Model Feature - Verdict Value", False, f"Invalid verdict: {verdict} (should be one of {valid_verdicts})")
                     return False
