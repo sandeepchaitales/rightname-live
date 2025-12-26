@@ -1649,7 +1649,9 @@ const Dashboard = () => {
                     <img src={LOGO_URL} alt="RIGHTNAME" className="h-8" />
                 </div>
                 <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="hidden md:flex">{query.category} • {query.market_scope}</Badge>
+                    <Badge variant="outline" className="hidden md:flex">
+                        {query.category} • {query.countries?.length === 1 ? query.countries[0] : (query.countries?.length > 1 ? `${query.countries.length} Countries` : query.market_scope)}
+                    </Badge>
                     {isAuthenticated ? (
                         <Button onClick={() => window.print()} className="gap-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl">
                             <Printer className="h-4 w-4" /> Export PDF
