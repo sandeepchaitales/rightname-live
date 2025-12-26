@@ -647,6 +647,14 @@ async def evaluate_brands(request: BrandEvaluationRequest):
                     except json.JSONDecodeError:
                         raise
             
+            # Ensure data is a dict, not a list
+            if isinstance(data, list):
+                # If LLM returned a list, wrap it as brand_scores
+                if len(data) > 0 and isinstance(data[0], dict):
+                    data = {"brand_scores": data, "executive_summary": "Brand evaluation completed.", "comparison_verdict": ""}
+                else:
+                    raise ValueError("Invalid response format from LLM")
+            
             evaluation = BrandEvaluationResponse(**data)
             
             # OVERRIDE: Force REJECT verdict for famous brands
