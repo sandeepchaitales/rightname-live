@@ -860,16 +860,52 @@ async def dynamic_brand_search(brand_name: str, category: str = "") -> dict:
         logging.info(f"  Total unique competitors: {len(all_competitors)}")
         
         # COMPARE user's brand against ALL competitors
+        # Prioritize matches that are in the same category context
         conflicts = []
+        category_lower = category.lower() if category else ""
+        
         for competitor in all_competitors:
             is_similar, similarity, match_type = check_similarity(brand_name, competitor)
             if is_similar and similarity >= 0.85:
+                # Boost score if competitor name suggests same category
+                # e.g., "bumble" is likely a dating app, "dumbbell" is fitness
+                is_category_relevant = False
+                if category_lower:
+                    # Check if this competitor was found in category-specific searches
+                    # Dating apps: tinder, bumble, hinge, etc.
+                    dating_keywords = ['tinder', 'bumble', 'hinge', 'match', 'okcupid', 'badoo', 'happn']
+                    food_keywords = ['swiggy', 'zomato', 'uber', 'doordash', 'deliveroo', 'grubhub']
+                    finance_keywords = ['paytm', 'phonepe', 'gpay', 'razorpay', 'paypal', 'venmo']
+                    streaming_keywords = ['netflix', 'prime', 'hulu', 'disney', 'hbo', 'hotstar']
+                    
+                    if 'dating' in category_lower and competitor.lower() in dating_keywords:
+                        is_category_relevant = True
+                        similarity = min(similarity + 0.05, 1.0)  # Boost
+                    elif 'food' in category_lower and competitor.lower() in food_keywords:
+                        is_category_relevant = True
+                        similarity = min(similarity + 0.05, 1.0)
+                    elif 'finance' in category_lower and competitor.lower() in finance_keywords:
+                        is_category_relevant = True
+                        similarity = min(similarity + 0.05, 1.0)
+                    elif 'stream' in category_lower and competitor.lower() in streaming_keywords:
+                        is_category_relevant = True
+                        similarity = min(similarity + 0.05, 1.0)
+                
+                # Penalize generic words that are unlikely to be brand conflicts
+                generic_words = ['dumbbell', 'dumbbells', 'exercise', 'fitness', 'workout', 
+                                'shopping', 'search', 'browser', 'phone', 'mobile']
+                if competitor.lower() in generic_words:
+                    similarity = max(similarity - 0.10, 0)  # Penalize
+                    if similarity < 0.85:
+                        continue
+                
                 conflicts.append({
                     "competitor": competitor,
                     "similarity": similarity,
-                    "match_type": match_type
+                    "match_type": match_type,
+                    "category_relevant": is_category_relevant
                 })
-                logging.warning(f"    🚨 CONFLICT: '{brand_name}' ~ '{competitor}' ({similarity:.0%} {match_type})")
+                logging.warning(f"    🚨 CONFLICT: '{brand_name}' ~ '{competitor}' ({similarity:.0%} {match_type}) [Category: {is_category_relevant}]")
         
         if conflicts:
             best_match = max(conflicts, key=lambda x: x["similarity"])
