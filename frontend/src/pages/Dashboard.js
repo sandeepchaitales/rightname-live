@@ -268,9 +268,7 @@ const InputSummarySection = ({ query, brandName, reportId, date }) => {
                         <div className="space-y-1 col-span-2">
                             <p className="text-xs text-slate-500 uppercase tracking-wide font-medium">Target Countries</p>
                             <p className="text-sm font-semibold text-slate-800">
-                                {query?.countries?.map((c, i) => (
-                                    <span key={i}>{getCountryFlag(c)} {c}{i < query.countries.length - 1 ? ', ' : ''}</span>
-                                )) || 'Not specified'}
+                                {formatCountriesWithFlags(query?.countries)}
                             </p>
                         </div>
                     </div>
