@@ -1789,8 +1789,8 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* INPUT SUMMARY SECTION */}
-                <section className="print-section">
+                {/* INPUT SUMMARY SECTION - Screen only (already on Cover Page for PDF) */}
+                <section className="no-print">
                     <InputSummarySection 
                         query={query} 
                         brandName={brand.brand_name} 
