@@ -542,6 +542,40 @@ const LandingPage = () => {
                                 </div>
                             </div>
 
+                            {/* NEW: Enhanced Accuracy Fields (Improvements #2 & #3) */}
+                            <div className="border-t-2 border-dashed border-slate-200 pt-4 mt-2">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Target className="w-4 h-4 text-violet-500" />
+                                    <span className="text-xs font-black uppercase tracking-wider text-violet-600">Enhanced Accuracy (Optional)</span>
+                                </div>
+                                
+                                {/* Known Competitors & Product Keywords */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-black uppercase tracking-wider text-slate-500">Known Competitors 🎯</Label>
+                                        <Input 
+                                            name="known_competitors"
+                                            value={formData.known_competitors}
+                                            onChange={handleChange}
+                                            placeholder="PhonePe, Paytm, GPay"
+                                            className="h-12 bg-slate-50 border-2 border-slate-200 rounded-xl font-medium hover:border-violet-300 transition-colors"
+                                        />
+                                        <p className="text-[10px] text-slate-400">Top 3-5 competitors in your market</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-black uppercase tracking-wider text-slate-500">Product Keywords 🔑</Label>
+                                        <Input 
+                                            name="product_keywords"
+                                            value={formData.product_keywords}
+                                            onChange={handleChange}
+                                            placeholder="UPI, wallet, payments"
+                                            className="h-12 bg-slate-50 border-2 border-slate-200 rounded-xl font-medium hover:border-violet-300 transition-colors"
+                                        />
+                                        <p className="text-[10px] text-slate-400">Key terms describing your product</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <Button 
                                 type="submit" 
                                 className="w-full h-14 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 hover:from-violet-700 hover:via-fuchsia-600 hover:to-orange-600 text-white text-lg font-black rounded-xl shadow-xl shadow-violet-300/50 hover:shadow-2xl hover:shadow-violet-400/50 hover:scale-[1.02] transition-all"
