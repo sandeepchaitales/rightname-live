@@ -1962,6 +1962,14 @@ class BrandEvaluationTester:
         # Test logout
         self.test_auth_logout()
         
+        # NEW: RIGHTNAME v2.0 Improvement Tests
+        print("\n🆕 RIGHTNAME v2.0 IMPROVEMENT TESTS")
+        print("=" * 80)
+        self.test_early_stopping_famous_brands()      # Improvement #5
+        self.test_parallel_processing_speed()         # Improvement #1  
+        self.test_new_form_fields()                   # Improvements #2 & #3
+        self.test_play_store_error_handling()         # Improvement #4
+        
         # Print summary
         print(f"\n📊 Test Summary:")
         print(f"Tests Run: {self.tests_run}")
