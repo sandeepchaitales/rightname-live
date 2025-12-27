@@ -1123,7 +1123,7 @@ async def evaluate_brands(request: BrandEvaluationRequest):
         doc['created_at'] = datetime.now(timezone.utc).isoformat()
         doc['request'] = request.model_dump()
         doc['early_stopped'] = True
-        doc['detection_method'] = "dynamic_search" if dynamic_rejections else "famous_brand_list"
+        doc['detection_method'] = "dynamic_competitor_search"
         doc['processing_time_seconds'] = time_module.time() - start_time
         await db.evaluations.insert_one(doc)
         
