@@ -1517,35 +1517,36 @@ async def evaluate_brands(request: BrandEvaluationRequest):
                 
                 evaluation = BrandEvaluationResponse(**data)
                 
-                # OVERRIDE: Force REJECT verdict for famous brands
-                if famous_brand_rejections:
+                # OVERRIDE: Force REJECT verdict for brands caught by dynamic search
+                if all_rejections:
                     for i, brand_score in enumerate(evaluation.brand_scores):
                         brand_name = brand_score.brand_name
-                        if brand_name in famous_brand_rejections or brand_name.lower() in [b.lower() for b in famous_brand_rejections.keys()]:
-                            famous_info = famous_brand_rejections.get(brand_name) or famous_brand_rejections.get(brand_name.upper()) or list(famous_brand_rejections.values())[0]
+                        if brand_name in all_rejections or brand_name.lower() in [b.lower() for b in all_rejections.keys()]:
+                            rejection_info = all_rejections.get(brand_name) or all_rejections.get(brand_name.upper()) or list(all_rejections.values())[0]
+                            matched_brand = rejection_info.get('matched_brand', 'Unknown')
                             
-                            logging.warning(f"OVERRIDING LLM verdict for '{brand_name}' - Famous brand detected: {famous_info['matched_brand']}")
+                            logging.warning(f"OVERRIDING LLM verdict for '{brand_name}' - Conflict detected: {matched_brand}")
                             
                             # Force REJECT verdict
                             evaluation.brand_scores[i].verdict = "REJECT"
                             evaluation.brand_scores[i].namescore = 5.0  # Near-zero score
-                            evaluation.brand_scores[i].summary = f"⛔ FATAL CONFLICT: '{brand_name}' is an EXISTING MAJOR TRADEMARK of {famous_info['matched_brand']}. Using this name would constitute trademark infringement and is legally prohibited. This name CANNOT be used for any business purpose."
+                            evaluation.brand_scores[i].summary = f"⛔ FATAL CONFLICT: '{brand_name}' is too similar to existing brand '{matched_brand}'. Using this name would constitute trademark infringement. This name CANNOT be used for any business purpose."
                             
                             # Update trademark risk
                             evaluation.brand_scores[i].trademark_risk = {
                                 "overall_risk": "CRITICAL",
-                                "reason": f"EXACT MATCH of famous brand '{famous_info['matched_brand']}'. Trademark infringement guaranteed."
+                                "reason": f"Similar to existing brand '{matched_brand}'. Trademark infringement likely."
                             }
                             
                             # Clear recommendations (no point recommending anything for a rejected name)
                             if evaluation.brand_scores[i].domain_analysis:
                                 evaluation.brand_scores[i].domain_analysis.alternatives = []
-                                evaluation.brand_scores[i].domain_analysis.strategy_note = "N/A - Name rejected due to famous brand conflict"
+                                evaluation.brand_scores[i].domain_analysis.strategy_note = "N/A - Name rejected due to brand conflict"
                             if evaluation.brand_scores[i].multi_domain_availability:
                                 evaluation.brand_scores[i].multi_domain_availability.recommended_domain = "N/A - Name rejected"
                                 evaluation.brand_scores[i].multi_domain_availability.acquisition_strategy = "N/A - Name rejected"
                             if evaluation.brand_scores[i].social_availability:
-                                evaluation.brand_scores[i].social_availability.recommendation = "N/A - Name rejected due to famous brand conflict"
+                                evaluation.brand_scores[i].social_availability.recommendation = "N/A - Name rejected due to brand conflict"
                             if evaluation.brand_scores[i].competitor_analysis:
                                 evaluation.brand_scores[i].competitor_analysis.suggested_pricing = "N/A - Name rejected"
                             evaluation.brand_scores[i].positioning_fit = "N/A - Name rejected due to famous brand trademark conflict"
