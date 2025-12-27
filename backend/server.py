@@ -729,8 +729,8 @@ async def dynamic_brand_search(brand_name: str, category: str = "") -> dict:
             "reason": "Why we think this brand exists"
         }
     """
-    from visibility import get_web_search_results
     import re
+    import httpx
     
     logging.info(f"🔍 DYNAMIC SEARCH: Checking if '{brand_name}' exists in market...")
     
@@ -749,79 +749,115 @@ async def dynamic_brand_search(brand_name: str, category: str = "") -> dict:
     brand_dedupe = re.sub(r'(.)\1+', r'\1', brand_normalized)
     brand_singular = brand_normalized.rstrip('s') if len(brand_normalized) > 3 else brand_normalized
     
-    # Search 1: Just the brand name
-    logging.info(f"  Search 1: '{brand_name}'")
-    search1_results = get_web_search_results(brand_name)
+    def extract_bing_titles(html_content):
+        """Extract titles from Bing search results"""
+        titles = []
+        # Extract from h2 tags (main results)
+        h2_matches = re.findall(r'<h2[^>]*><a[^>]*>([^<]+)</a></h2>', html_content)
+        titles.extend(h2_matches)
+        # Also extract from search result snippets
+        snippet_matches = re.findall(r'<p class="b_algoSlug">([^<]+)</p>', html_content)
+        titles.extend(snippet_matches)
+        return titles[:15]
     
-    # Search 2: Brand name + category
-    search_query_2 = f"{brand_name} {category}" if category else f"{brand_name} app"
-    logging.info(f"  Search 2: '{search_query_2}'")
-    search2_results = get_web_search_results(search_query_2)
-    
-    # Combine and dedupe results
-    all_results = list(set(search1_results[:10] + search2_results[:10]))[:15]
-    result["search_results"] = all_results
-    
-    # Analyze search results
-    exact_matches = 0
-    similar_matches = 0
-    evidence = []
-    matched_names = set()
-    
-    for search_result in all_results:
-        search_lower = search_result.lower()
-        search_normalized = re.sub(r'[^a-z0-9\s]', '', search_lower)
+    try:
+        from primp import Client
+        client = Client(impersonate="chrome_131", follow_redirects=True, timeout=10)
         
-        # Check for EXACT brand name in search result
-        if brand_lower in search_lower or brand_normalized in search_normalized:
-            exact_matches += 1
-            evidence.append(search_result[:100])
+        all_search_titles = []
+        
+        # Search 1: Just the brand name
+        logging.info(f"  Search 1: '{brand_name}'")
+        try:
+            url1 = f"https://www.bing.com/search?q={brand_name.replace(' ', '+')}"
+            response1 = client.get(url1)
+            if response1.status_code == 200:
+                titles1 = extract_bing_titles(response1.text)
+                all_search_titles.extend(titles1)
+                logging.info(f"    Found {len(titles1)} results")
+        except Exception as e:
+            logging.warning(f"    Search 1 failed: {e}")
+        
+        # Search 2: Brand name + category
+        search_query_2 = f"{brand_name} {category}" if category else f"{brand_name} app"
+        logging.info(f"  Search 2: '{search_query_2}'")
+        try:
+            url2 = f"https://www.bing.com/search?q={search_query_2.replace(' ', '+')}"
+            response2 = client.get(url2)
+            if response2.status_code == 200:
+                titles2 = extract_bing_titles(response2.text)
+                all_search_titles.extend(titles2)
+                logging.info(f"    Found {len(titles2)} results")
+        except Exception as e:
+            logging.warning(f"    Search 2 failed: {e}")
+        
+        # Dedupe results
+        all_search_titles = list(set(all_search_titles))[:20]
+        result["search_results"] = all_search_titles
+        
+        # Analyze search results
+        exact_matches = 0
+        similar_matches = 0
+        evidence = []
+        matched_names = set()
+        
+        for search_result in all_search_titles:
+            search_lower = search_result.lower()
+            search_normalized = re.sub(r'[^a-z0-9\s]', '', search_lower)
             
-            # Try to extract the actual brand name from the result
-            # Look for patterns like "BrandName - Company" or "BrandName: Description"
-            for delimiter in [' - ', ': ', ' | ', ' – ']:
-                if delimiter in search_result:
-                    potential_brand = search_result.split(delimiter)[0].strip()
-                    if len(potential_brand) < 50:  # Reasonable brand name length
-                        matched_names.add(potential_brand)
+            # Check for EXACT brand name in search result
+            if brand_lower in search_lower or brand_normalized in search_normalized:
+                exact_matches += 1
+                evidence.append(search_result[:100])
+                
+                # Try to extract the actual brand name from the result
+                for delimiter in [' - ', ': ', ' | ', ' – ', ' -']:
+                    if delimiter in search_result:
+                        potential_brand = search_result.split(delimiter)[0].strip()
+                        if len(potential_brand) < 50:
+                            matched_names.add(potential_brand)
+                            break
+            
+            # Check for SIMILAR names (dedupe, singular)
+            elif brand_dedupe in search_normalized or brand_singular in search_normalized:
+                similar_matches += 1
+                evidence.append(search_result[:100])
         
-        # Check for SIMILAR names (dedupe, singular)
-        elif brand_dedupe in search_normalized or brand_singular in search_normalized:
-            similar_matches += 1
-            evidence.append(search_result[:100])
-    
-    # Determine if brand exists based on search results
-    total_matches = exact_matches + similar_matches
-    
-    if exact_matches >= 3:
-        # HIGH confidence - brand name appears in 3+ search results
-        result["exists"] = True
-        result["confidence"] = "HIGH"
-        result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
-        result["evidence"] = evidence[:5]
-        result["reason"] = f"Brand name '{brand_name}' appears in {exact_matches} of top 10 search results. This indicates an existing brand/company/app."
-        logging.warning(f"🚨 DYNAMIC SEARCH FOUND: '{brand_name}' exists! ({exact_matches} exact matches)")
+        # Determine if brand exists based on search results
+        total_matches = exact_matches + similar_matches
         
-    elif exact_matches >= 1 and similar_matches >= 2:
-        # MEDIUM confidence - some exact + some similar
-        result["exists"] = True
-        result["confidence"] = "MEDIUM"
-        result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
-        result["evidence"] = evidence[:5]
-        result["reason"] = f"Brand name '{brand_name}' and similar variants found in search results ({exact_matches} exact, {similar_matches} similar). Likely an existing brand."
-        logging.warning(f"⚠️ DYNAMIC SEARCH: '{brand_name}' likely exists ({exact_matches} exact, {similar_matches} similar)")
+        if exact_matches >= 3:
+            # HIGH confidence - brand name appears in 3+ search results
+            result["exists"] = True
+            result["confidence"] = "HIGH"
+            result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
+            result["evidence"] = evidence[:5]
+            result["reason"] = f"Brand name '{brand_name}' appears in {exact_matches} of top search results. This indicates an existing brand/company/app."
+            logging.warning(f"🚨 DYNAMIC SEARCH FOUND: '{brand_name}' exists! ({exact_matches} exact matches)")
+            
+        elif exact_matches >= 1 and similar_matches >= 2:
+            # MEDIUM confidence - some exact + some similar
+            result["exists"] = True
+            result["confidence"] = "MEDIUM"
+            result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
+            result["evidence"] = evidence[:5]
+            result["reason"] = f"Brand name '{brand_name}' and similar variants found in search results ({exact_matches} exact, {similar_matches} similar). Likely an existing brand."
+            logging.warning(f"⚠️ DYNAMIC SEARCH: '{brand_name}' likely exists ({exact_matches} exact, {similar_matches} similar)")
+            
+        elif total_matches >= 4:
+            # MEDIUM confidence - multiple matches
+            result["exists"] = True
+            result["confidence"] = "MEDIUM"
+            result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
+            result["evidence"] = evidence[:5]
+            result["reason"] = f"Multiple references to '{brand_name}' found in search results. May be an existing brand."
+            logging.warning(f"⚠️ DYNAMIC SEARCH: '{brand_name}' may exist ({total_matches} total matches)")
         
-    elif total_matches >= 4:
-        # MEDIUM confidence - multiple matches
-        result["exists"] = True
-        result["confidence"] = "MEDIUM"
-        result["matched_brand"] = list(matched_names)[0] if matched_names else brand_name
-        result["evidence"] = evidence[:5]
-        result["reason"] = f"Multiple references to '{brand_name}' found in search results. May be an existing brand."
-        logging.warning(f"⚠️ DYNAMIC SEARCH: '{brand_name}' may exist ({total_matches} total matches)")
+        else:
+            logging.info(f"✅ DYNAMIC SEARCH: '{brand_name}' appears to be unique ({exact_matches} exact, {similar_matches} similar)")
     
-    else:
-        logging.info(f"✅ DYNAMIC SEARCH: '{brand_name}' appears to be unique ({exact_matches} exact, {similar_matches} similar)")
+    except Exception as e:
+        logging.error(f"Dynamic search error: {e}")
     
     return result
 
