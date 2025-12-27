@@ -524,7 +524,7 @@ def format_app_results_for_llm(app_search_results: dict, brand_name: str) -> str
     return "\n".join(lines)
 
 
-def check_visibility(brand_name: str, category: str = "", industry: str = ""):
+def check_visibility(brand_name: str, category: str = "", industry: str = "", known_competitors: list = None, product_keywords: list = None):
     """
     Enhanced visibility check with category-aware searching.
     
@@ -532,11 +532,17 @@ def check_visibility(brand_name: str, category: str = "", industry: str = ""):
         brand_name: The brand name to search
         category: Product category (e.g., "Salon Appointment Booking App")
         industry: Industry sector (e.g., "Beauty & Wellness")
+        known_competitors: User-provided list of known competitors (Improvement #2)
+        product_keywords: User-provided product keywords for better search (Improvement #3)
     
     Returns:
         Dictionary with google, apps, and app_search_details
     """
     logger.info(f"Checking visibility for '{brand_name}' in category '{category}'")
+    
+    # Default empty lists if not provided
+    known_competitors = known_competitors or []
+    product_keywords = product_keywords or []
     
     # 1. Web Search (brand name + category for better context)
     web_query = f"{brand_name} {category}" if category else brand_name
@@ -547,19 +553,65 @@ def check_visibility(brand_name: str, category: str = "", industry: str = ""):
         web_res_brand = get_web_search_results(brand_name)
         web_res = list(set(web_res + web_res_brand))[:10]
     
-    time.sleep(0.5)
+    # Improvement #3: Also search with product keywords
+    if product_keywords:
+        for keyword in product_keywords[:2]:  # Limit to 2 keywords
+            try:
+                keyword_res = get_web_search_results(f"{brand_name} {keyword}")
+                web_res = list(set(web_res + keyword_res))[:15]
+            except Exception as e:
+                logger.warning(f"Keyword search failed for '{brand_name} {keyword}': {e}")
+    
+    time.sleep(0.3)
     
     # 2. Comprehensive App Store Search
     app_search_results = search_app_stores_comprehensive(brand_name, category, industry)
+    
+    # Improvement #2: Check user-provided competitors for conflicts
+    competitor_matches = []
+    if known_competitors:
+        logger.info(f"Checking against {len(known_competitors)} user-provided competitors")
+        for competitor in known_competitors[:5]:  # Limit to 5 competitors
+            # Check if brand name is similar to competitor
+            brand_lower = brand_name.lower().replace(" ", "")
+            comp_lower = competitor.lower().replace(" ", "")
+            
+            # Check for substring match
+            if brand_lower in comp_lower or comp_lower in brand_lower:
+                competitor_matches.append({
+                    "title": competitor,
+                    "developer": "User-provided competitor",
+                    "match_type": "USER_COMPETITOR_MATCH",
+                    "appId": f"user_competitor_{competitor.lower().replace(' ', '_')}"
+                })
+            # Check for phonetic similarity
+            elif is_close_match(brand_name, competitor):
+                competitor_matches.append({
+                    "title": competitor,
+                    "developer": "User-provided competitor",
+                    "match_type": "USER_COMPETITOR_PHONETIC",
+                    "appId": f"user_competitor_{competitor.lower().replace(' ', '_')}"
+                })
+        
+        # Add competitor matches to potential conflicts
+        if competitor_matches:
+            app_search_results["potential_conflicts"].extend(competitor_matches)
+            app_search_results["user_competitor_matches"] = competitor_matches
     
     # 3. Format app results for backward compatibility
     play_res_formatted = []
     
     # Add conflicts first (most important)
     for app in app_search_results.get("potential_conflicts", []):
-        play_res_formatted.append(
-            f"⚠️ CONFLICT: {app.get('title', 'Unknown')} (Developer: {app.get('developer', 'Unknown')}) - {app.get('match_type', '')}"
-        )
+        match_type = app.get('match_type', '')
+        if 'USER_COMPETITOR' in match_type:
+            play_res_formatted.append(
+                f"🎯 USER COMPETITOR: {app.get('title', 'Unknown')} - DIRECT COMPETITION (user-provided)"
+            )
+        else:
+            play_res_formatted.append(
+                f"⚠️ CONFLICT: {app.get('title', 'Unknown')} (Developer: {app.get('developer', 'Unknown')}) - {match_type}"
+            )
     
     # Add exact matches
     for app in app_search_results.get("exact_matches", []):
@@ -593,4 +645,6 @@ def check_visibility(brand_name: str, category: str = "", industry: str = ""):
         "app_search_details": app_search_results,
         "app_search_summary": app_search_summary,
         "phonetic_variants_checked": generate_phonetic_variants(brand_name),
+        "known_competitors_checked": known_competitors,
+        "competitor_matches_found": len(competitor_matches) if known_competitors else 0
     }
