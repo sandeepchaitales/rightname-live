@@ -860,6 +860,10 @@ async def dynamic_brand_search(brand_name: str, category: str = "") -> dict:
         # COMPARE user's brand against ALL found competitors
         conflicts = []
         for competitor in all_competitors:
+            # Skip if competitor is the same as input (or very close)
+            if competitor.lower() == brand_lower or competitor.lower() == brand_normalized:
+                continue
+                
             is_similar, similarity, match_type = check_similarity(brand_name, competitor)
             if is_similar:
                 conflicts.append({
