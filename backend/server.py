@@ -1122,27 +1122,26 @@ async def evaluate_brands(request: BrandEvaluationRequest):
     import time as time_module
     start_time = time_module.time()
     
-    # ==================== LAYER 0: DYNAMIC SEARCH-BASED DETECTION ====================
-    # NEW: Search the web for brand name FIRST before checking static list
-    # This catches brands that aren't in our static list
-    dynamic_rejections = {}
-    for brand in request.brand_names:
-        dynamic_result = await dynamic_brand_search(brand, request.category)
-        if dynamic_result["exists"] and dynamic_result["confidence"] in ["HIGH", "MEDIUM"]:
-            dynamic_rejections[brand] = dynamic_result
-            logging.warning(f"🔍 DYNAMIC SEARCH DETECTED: {brand} - {dynamic_result['reason']}")
-    
-    # ==================== LAYER 1: FAMOUS BRAND CHECK (Static List) ====================
-    # Also check against static list for instant matches
+    # ==================== LAYER 1: FAMOUS BRAND CHECK (Static List) - RUN FIRST ====================
+    # Check against curated list of famous brands FIRST (faster and more accurate for known brands)
     famous_brand_rejections = {}
     for brand in request.brand_names:
-        if brand not in dynamic_rejections:  # Skip if already caught by dynamic search
-            famous_check = check_famous_brand(brand)
-            if famous_check["is_famous"]:
-                famous_brand_rejections[brand] = famous_check
-                logging.warning(f"FAMOUS BRAND DETECTED: {brand} matches {famous_check['matched_brand']}")
+        famous_check = check_famous_brand(brand)
+        if famous_check["is_famous"]:
+            famous_brand_rejections[brand] = famous_check
+            logging.warning(f"FAMOUS BRAND DETECTED: {brand} matches {famous_check['matched_brand']}")
     
-    # Combine all rejections
+    # ==================== LAYER 0: DYNAMIC WEB SEARCH (for brands not in static list) ====================
+    # Only run dynamic search for brands NOT caught by famous brand list
+    dynamic_rejections = {}
+    for brand in request.brand_names:
+        if brand not in famous_brand_rejections:  # Skip if already caught by famous list
+            dynamic_result = await dynamic_brand_search(brand, request.category)
+            if dynamic_result["exists"] and dynamic_result["confidence"] in ["HIGH", "MEDIUM"]:
+                dynamic_rejections[brand] = dynamic_result
+                logging.warning(f"🔍 DYNAMIC SEARCH DETECTED: {brand} - {dynamic_result['reason']}")
+    
+    # Combine all rejections (famous brand takes priority)
     all_rejections = {**dynamic_rejections, **famous_brand_rejections}
     
     # ==================== EARLY STOPPING FOR DETECTED BRANDS ====================
