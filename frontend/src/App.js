@@ -5,7 +5,6 @@ import { HelmetProvider } from "react-helmet-async";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
-import PricingPage from "./pages/PricingPage";
 import BlogPage from "./pages/BlogPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthModal from "./components/AuthModal";
@@ -26,7 +25,6 @@ function AppRouter() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
-      <Route path="/pricing" element={<PricingPage />} />
       <Route path="/blog" element={<BlogPage />} />
     </Routes>
   );
