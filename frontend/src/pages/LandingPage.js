@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { api } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap, AlertCircle, LogIn, LogOut, User, CheckCircle, Star, Rocket, Target, Trophy, Heart, TrendingUp, Users, Building2, Briefcase } from "lucide-react";
+import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap, AlertCircle, LogIn, LogOut, User, CheckCircle, Star, Rocket, Target, Trophy, Heart, TrendingUp, Users, Building2, Briefcase, ChevronDown, ChevronUp, FileText, Clock, DollarSign, MessageSquare, Quote } from "lucide-react";
 import { toast } from "sonner";
 import { ReportCarousel } from '../components/ReportPreview';
+import Footer from '../components/Footer';
 
 // Dynamic Cycling "Trusted By" Component
 const TrustedByCycler = () => {
