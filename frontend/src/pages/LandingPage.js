@@ -787,7 +787,7 @@ const LandingPage = () => {
         <div className="mt-28">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-blue-100 text-blue-700 border-blue-200 px-4 py-1.5 text-sm font-black">
-              👥 Who It's For
+              👥 Who It Is For
             </Badge>
             <h2 className="text-4xl font-black text-slate-900 mb-4">
               Built for{' '}
