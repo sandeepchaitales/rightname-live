@@ -440,7 +440,7 @@ const LandingPage = () => {
                 </h1>
                 
                 <p className="text-xl text-slate-600 font-medium leading-relaxed max-w-lg">
-                    Get instant, <span className="text-violet-600 font-bold">consulting-grade</span> <span className="text-slate-900 font-black">"BRAND NAME ANALYSIS"</span> on trademark risk, cultural resonance, and domain availability. <span className="text-fuchsia-600 font-bold">No guesswork.</span>
+                    Get instant, <span className="text-violet-600 font-bold">consulting-grade</span> <span className="text-slate-900 font-black">BRAND NAME ANALYSIS</span> on trademark risk, cultural resonance, and domain availability. <span className="text-fuchsia-600 font-bold">No guesswork.</span>
                 </p>
 
                 {/* Quick Stats */}
