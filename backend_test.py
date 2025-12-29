@@ -3402,7 +3402,7 @@ class BrandEvaluationTester:
             "category": "Fashion",
             "industry": "Apparel",
             "product_type": "Sportswear",
-            "positioning": "Athletic excellence",
+            "positioning": "Premium",
             "market_scope": "Global",
             "countries": ["USA"]
         }
