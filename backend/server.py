@@ -916,18 +916,19 @@ Return ONLY the JSON, no other text."""
             
             # If LLM says no conflict but web search found evidence, check confidence
             elif brand_found_online and not has_conflict:
-                # Use web_confidence to decide whether to override LLM
-                if web_confidence in ["HIGH", "MEDIUM"]:
-                    print(f"⚠️ WEB OVERRIDE: LLM said no conflict, but web found '{brand_name}' with {web_confidence} confidence!", flush=True)
-                    logging.warning(f"⚠️ WEB OVERRIDE: LLM missed '{brand_name}' - web confidence: {web_confidence}")
+                # ONLY override LLM when web has HIGH confidence (platform presence)
+                # MEDIUM/LOW confidence alone should NOT override LLM
+                if web_confidence == "HIGH":
+                    print(f"⚠️ WEB OVERRIDE: LLM said no conflict, but web found '{brand_name}' on business platform!", flush=True)
+                    logging.warning(f"⚠️ WEB OVERRIDE: LLM missed '{brand_name}' - found on platform")
                     result["exists"] = True
                     result["confidence"] = web_confidence
                     result["matched_brand"] = brand_name
                     result["evidence"] = [f"Web: {e}" for e in web_evidence]
-                    result["reason"] = f"Brand '{brand_name}' found via web search with {web_confidence} confidence (found: {', '.join(web_evidence[:2])})"
+                    result["reason"] = f"Brand '{brand_name}' found on business platform (found: {', '.join(web_evidence[:2])})"
                 else:
-                    # LOW confidence - trust the LLM
-                    print(f"✅ LLM: '{brand_name}' appears unique (low confidence web signal ignored)", flush=True)
+                    # MEDIUM/LOW confidence - trust the LLM's judgment
+                    print(f"✅ LLM: '{brand_name}' appears unique (web has only {web_confidence} confidence, trusting LLM)", flush=True)
                     logging.info(f"✅ LLM: '{brand_name}' appears unique (web confidence: {web_confidence})")
             else:
                 print(f"✅ LLM: '{brand_name}' appears unique", flush=True)
