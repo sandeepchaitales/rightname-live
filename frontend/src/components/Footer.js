@@ -41,7 +41,7 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6">
               <img 
-                src="https://customer-assets.emergentagent.com/job_name-radar-1/artifacts/a4ppykdi_RIGHTNAME.AI.png" 
+                src="https://customer-assets.emergentagent.com/job_name-radar-1/artifacts/qrfrrizq_R.png" 
                 alt="RIGHTNAME Logo" 
                 className="w-12 h-12 rounded-xl"
               />
