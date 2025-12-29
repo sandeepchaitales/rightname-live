@@ -1656,7 +1656,7 @@ async def evaluate_brands(request: BrandEvaluationRequest):
                 
                 # Retry on 502/Gateway/Service errors AND JSON/Validation errors
                 if any(x in error_msg for x in ["502", "BadGateway", "ServiceUnavailable", "Expecting", "JSON", "validation error", "control character"]):
-                    wait_time = (2 ** attempt) + random.uniform(0, 1)
+                    wait_time = 0.5 + random.uniform(0, 0.5)  # Reduced wait time for faster fallback
                     logging.warning(f"LLM Error ({model_provider}/{model_name}, Attempt {attempt+1}/{max_retries}): {error_msg}. Retrying in {wait_time:.2f}s...")
                     await asyncio.sleep(wait_time)
                     continue
