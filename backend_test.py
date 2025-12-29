@@ -3149,6 +3149,426 @@ class BrandEvaluationTester:
         
         return self.tests_passed == self.tests_run
 
+    def test_enhanced_brand_detection_chai_duniya(self):
+        """Test Case 1: Chai Duniya - Should get REJECT verdict (existing chai cafe chain in India)"""
+        payload = {
+            "brand_names": ["Chai Duniya"],
+            "category": "Cafe",
+            "industry": "Food and Beverage",
+            "product_type": "Chai and Snacks",
+            "positioning": "Premium chai experience",
+            "market_scope": "Single Country",
+            "countries": ["India"]
+        }
+        
+        try:
+            print(f"\n☕ Testing Enhanced Brand Detection - Chai Duniya...")
+            print(f"Expected: REJECT verdict with score ~5 (existing chai cafe chain)")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Enhanced Detection - Chai Duniya HTTP", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Enhanced Detection - Chai Duniya Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                
+                # Test 1: Check brand name matches
+                if brand.get("brand_name") != "Chai Duniya":
+                    self.log_test("Enhanced Detection - Chai Duniya Name", False, f"Expected 'Chai Duniya', got '{brand.get('brand_name')}'")
+                    return False
+                
+                # Test 2: Check verdict is REJECT
+                verdict = brand.get("verdict", "")
+                if verdict != "REJECT":
+                    self.log_test("Enhanced Detection - Chai Duniya Verdict", False, f"Expected REJECT verdict, got '{verdict}' (Chai Duniya is an existing chai cafe chain)")
+                    return False
+                
+                # Test 3: Check NameScore is low (~5)
+                namescore = brand.get("namescore", 0)
+                if not isinstance(namescore, (int, float)) or namescore > 15:
+                    self.log_test("Enhanced Detection - Chai Duniya Score", False, f"Expected low score (~5), got {namescore} (should be rejected due to existing brand)")
+                    return False
+                
+                # Test 4: Check summary mentions existing brand
+                summary = brand.get("summary", "").lower()
+                if not any(keyword in summary for keyword in ["existing", "conflict", "chai duniya", "brand already exists"]):
+                    self.log_test("Enhanced Detection - Chai Duniya Summary", False, f"Summary should mention existing brand conflict: {summary[:100]}")
+                    return False
+                
+                print(f"✅ Chai Duniya correctly rejected:")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - NameScore: {namescore}")
+                print(f"   - Conflict detected: {any(keyword in summary for keyword in ['existing', 'conflict'])}")
+                
+                self.log_test("Enhanced Detection - Chai Duniya", True, 
+                            f"Correctly rejected existing brand. Verdict: {verdict}, Score: {namescore}")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Enhanced Detection - Chai Duniya JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Enhanced Detection - Chai Duniya Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Enhanced Detection - Chai Duniya Exception", False, str(e))
+            return False
+
+    def test_enhanced_brand_detection_chaibunk(self):
+        """Test Case 2: Chaibunk - Should get REJECT verdict (Chai Bunk is existing cafe chain with 100+ stores)"""
+        payload = {
+            "brand_names": ["Chaibunk"],
+            "category": "Cafe",
+            "industry": "Food and Beverage", 
+            "product_type": "Chai and Snacks",
+            "positioning": "Affordable chai for everyone",
+            "market_scope": "Single Country",
+            "countries": ["India"]
+        }
+        
+        try:
+            print(f"\n☕ Testing Enhanced Brand Detection - Chaibunk...")
+            print(f"Expected: REJECT verdict with score ~5 (Chai Bunk has 100+ stores)")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Enhanced Detection - Chaibunk HTTP", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Enhanced Detection - Chaibunk Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                
+                # Test 1: Check brand name matches
+                if brand.get("brand_name") != "Chaibunk":
+                    self.log_test("Enhanced Detection - Chaibunk Name", False, f"Expected 'Chaibunk', got '{brand.get('brand_name')}'")
+                    return False
+                
+                # Test 2: Check verdict is REJECT
+                verdict = brand.get("verdict", "")
+                if verdict != "REJECT":
+                    self.log_test("Enhanced Detection - Chaibunk Verdict", False, f"Expected REJECT verdict, got '{verdict}' (Chai Bunk is existing cafe chain with 100+ stores)")
+                    return False
+                
+                # Test 3: Check NameScore is low (~5)
+                namescore = brand.get("namescore", 0)
+                if not isinstance(namescore, (int, float)) or namescore > 15:
+                    self.log_test("Enhanced Detection - Chaibunk Score", False, f"Expected low score (~5), got {namescore} (should be rejected due to existing brand)")
+                    return False
+                
+                # Test 4: Check summary mentions existing brand or conflict
+                summary = brand.get("summary", "").lower()
+                if not any(keyword in summary for keyword in ["existing", "conflict", "chai bunk", "chaibunk", "brand already exists"]):
+                    self.log_test("Enhanced Detection - Chaibunk Summary", False, f"Summary should mention existing brand conflict: {summary[:100]}")
+                    return False
+                
+                print(f"✅ Chaibunk correctly rejected:")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - NameScore: {namescore}")
+                print(f"   - Conflict detected: {any(keyword in summary for keyword in ['existing', 'conflict'])}")
+                
+                self.log_test("Enhanced Detection - Chaibunk", True, 
+                            f"Correctly rejected existing brand. Verdict: {verdict}, Score: {namescore}")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Enhanced Detection - Chaibunk JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Enhanced Detection - Chaibunk Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Enhanced Detection - Chaibunk Exception", False, str(e))
+            return False
+
+    def test_enhanced_brand_detection_zyphloria(self):
+        """Test Case 3: Zyphloria - Should get GO verdict with high score (completely unique name)"""
+        payload = {
+            "brand_names": ["Zyphloria"],
+            "category": "Technology",
+            "industry": "Software",
+            "product_type": "AI Platform",
+            "positioning": "Cutting-edge AI solutions",
+            "market_scope": "Global",
+            "countries": ["USA", "India"]
+        }
+        
+        try:
+            print(f"\n🚀 Testing Enhanced Brand Detection - Zyphloria...")
+            print(f"Expected: GO verdict with score > 80 (completely unique name)")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Enhanced Detection - Zyphloria HTTP", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Enhanced Detection - Zyphloria Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                
+                # Test 1: Check brand name matches
+                if brand.get("brand_name") != "Zyphloria":
+                    self.log_test("Enhanced Detection - Zyphloria Name", False, f"Expected 'Zyphloria', got '{brand.get('brand_name')}'")
+                    return False
+                
+                # Test 2: Check verdict is GO (or APPROVE)
+                verdict = brand.get("verdict", "")
+                if verdict not in ["GO", "APPROVE"]:
+                    self.log_test("Enhanced Detection - Zyphloria Verdict", False, f"Expected GO/APPROVE verdict, got '{verdict}' (Zyphloria is unique)")
+                    return False
+                
+                # Test 3: Check NameScore is high (> 80)
+                namescore = brand.get("namescore", 0)
+                if not isinstance(namescore, (int, float)) or namescore < 80:
+                    self.log_test("Enhanced Detection - Zyphloria Score", False, f"Expected high score (>80), got {namescore} (unique name should score well)")
+                    return False
+                
+                # Test 4: Check summary doesn't mention conflicts
+                summary = brand.get("summary", "").lower()
+                if any(keyword in summary for keyword in ["existing brand", "trademark conflict", "already exists"]):
+                    self.log_test("Enhanced Detection - Zyphloria No Conflicts", False, f"Summary should not mention conflicts for unique name: {summary[:100]}")
+                    return False
+                
+                print(f"✅ Zyphloria correctly approved:")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - NameScore: {namescore}")
+                print(f"   - No conflicts detected: {not any(keyword in summary for keyword in ['existing', 'conflict'])}")
+                
+                self.log_test("Enhanced Detection - Zyphloria", True, 
+                            f"Correctly approved unique brand. Verdict: {verdict}, Score: {namescore}")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Enhanced Detection - Zyphloria JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Enhanced Detection - Zyphloria Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Enhanced Detection - Zyphloria Exception", False, str(e))
+            return False
+
+    def test_enhanced_brand_detection_nike(self):
+        """Test Case 4: Nike - Should get REJECT verdict with early stopping"""
+        payload = {
+            "brand_names": ["Nike"],
+            "category": "Fashion",
+            "industry": "Apparel",
+            "product_type": "Sportswear",
+            "positioning": "Athletic excellence",
+            "market_scope": "Global",
+            "countries": ["USA"]
+        }
+        
+        try:
+            print(f"\n👟 Testing Enhanced Brand Detection - Nike...")
+            print(f"Expected: REJECT verdict with early stopping, score ~5")
+            
+            start_time = time.time()
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            response_time = time.time() - start_time
+            
+            print(f"Response Status: {response.status_code}")
+            print(f"Response Time: {response_time:.2f} seconds")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Enhanced Detection - Nike HTTP", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Enhanced Detection - Nike Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                
+                # Test 1: Check brand name matches
+                if brand.get("brand_name") != "Nike":
+                    self.log_test("Enhanced Detection - Nike Name", False, f"Expected 'Nike', got '{brand.get('brand_name')}'")
+                    return False
+                
+                # Test 2: Check verdict is REJECT
+                verdict = brand.get("verdict", "")
+                if verdict != "REJECT":
+                    self.log_test("Enhanced Detection - Nike Verdict", False, f"Expected REJECT verdict, got '{verdict}' (Nike is famous brand)")
+                    return False
+                
+                # Test 3: Check NameScore is low (~5)
+                namescore = brand.get("namescore", 0)
+                if not isinstance(namescore, (int, float)) or namescore > 15:
+                    self.log_test("Enhanced Detection - Nike Score", False, f"Expected low score (~5), got {namescore} (famous brand should be rejected)")
+                    return False
+                
+                # Test 4: Check for early stopping indicators
+                summary = brand.get("summary", "").lower()
+                early_stopping_indicators = ["immediate rejection", "famous brand", "existing brand", "early stopping"]
+                has_early_stopping = any(indicator in summary for indicator in early_stopping_indicators)
+                
+                if not has_early_stopping:
+                    print(f"Warning: No clear early stopping indicators found in summary: {summary[:100]}")
+                
+                # Test 5: Check response time (should be fast due to early stopping)
+                if response_time > 10:  # Allow some buffer, but should be much faster than full evaluation
+                    print(f"Warning: Response time {response_time:.2f}s may indicate early stopping didn't work optimally")
+                
+                print(f"✅ Nike correctly rejected:")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - NameScore: {namescore}")
+                print(f"   - Response Time: {response_time:.2f}s")
+                print(f"   - Early stopping indicators: {has_early_stopping}")
+                
+                self.log_test("Enhanced Detection - Nike", True, 
+                            f"Correctly rejected famous brand. Verdict: {verdict}, Score: {namescore}, Time: {response_time:.2f}s")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Enhanced Detection - Nike JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Enhanced Detection - Nike Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Enhanced Detection - Nike Exception", False, str(e))
+            return False
+
+    def test_enhanced_brand_detection_nexovix(self):
+        """Test Case 5: Nexovix - Should get GO verdict (unique invented name)"""
+        payload = {
+            "brand_names": ["Nexovix"],
+            "category": "Technology",
+            "industry": "Software",
+            "product_type": "Business Software",
+            "positioning": "Next-generation business solutions",
+            "market_scope": "Multi-Country",
+            "countries": ["USA", "UK", "India"]
+        }
+        
+        try:
+            print(f"\n🚀 Testing Enhanced Brand Detection - Nexovix...")
+            print(f"Expected: GO verdict with high score (unique invented name)")
+            
+            response = requests.post(
+                f"{self.api_url}/evaluate", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180
+            )
+            
+            print(f"Response Status: {response.status_code}")
+            
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:300]}"
+                self.log_test("Enhanced Detection - Nexovix HTTP", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                
+                if not data.get("brand_scores") or len(data["brand_scores"]) == 0:
+                    self.log_test("Enhanced Detection - Nexovix Structure", False, "No brand scores returned")
+                    return False
+                
+                brand = data["brand_scores"][0]
+                
+                # Test 1: Check brand name matches
+                if brand.get("brand_name") != "Nexovix":
+                    self.log_test("Enhanced Detection - Nexovix Name", False, f"Expected 'Nexovix', got '{brand.get('brand_name')}'")
+                    return False
+                
+                # Test 2: Check verdict is GO (or APPROVE)
+                verdict = brand.get("verdict", "")
+                if verdict not in ["GO", "APPROVE"]:
+                    self.log_test("Enhanced Detection - Nexovix Verdict", False, f"Expected GO/APPROVE verdict, got '{verdict}' (Nexovix is unique)")
+                    return False
+                
+                # Test 3: Check NameScore is high (> 80)
+                namescore = brand.get("namescore", 0)
+                if not isinstance(namescore, (int, float)) or namescore < 80:
+                    self.log_test("Enhanced Detection - Nexovix Score", False, f"Expected high score (>80), got {namescore} (unique name should score well)")
+                    return False
+                
+                # Test 4: Check summary doesn't mention conflicts
+                summary = brand.get("summary", "").lower()
+                if any(keyword in summary for keyword in ["existing brand", "trademark conflict", "already exists"]):
+                    self.log_test("Enhanced Detection - Nexovix No Conflicts", False, f"Summary should not mention conflicts for unique name: {summary[:100]}")
+                    return False
+                
+                print(f"✅ Nexovix correctly approved:")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - NameScore: {namescore}")
+                print(f"   - No conflicts detected: {not any(keyword in summary for keyword in ['existing', 'conflict'])}")
+                
+                self.log_test("Enhanced Detection - Nexovix", True, 
+                            f"Correctly approved unique brand. Verdict: {verdict}, Score: {namescore}")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Enhanced Detection - Nexovix JSON", False, f"Invalid JSON response: {str(e)}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Enhanced Detection - Nexovix Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Enhanced Detection - Nexovix Exception", False, str(e))
+            return False
+
     def run_all_tests(self):
         """Run all backend tests"""
         print("🚀 Starting Backend API Tests...")
