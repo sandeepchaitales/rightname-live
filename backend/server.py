@@ -750,18 +750,30 @@ BRAND NAME: {brand_name}
 CATEGORY: {category or 'General'}
 TARGET MARKET: India, USA, Global
 
-TASK: Determine if this brand name is identical or CONFUSINGLY SIMILAR to ANY existing brand, company, app, product, or trademark.
+TASK: Determine if this brand name:
+1. IS ALREADY AN EXISTING BRAND/COMPANY (exact or near-exact name)
+2. OR is CONFUSINGLY SIMILAR to ANY existing brand, company, app, product, or trademark
+
+⚠️ CRITICAL - CHECK IF THIS EXACT BRAND EXISTS FIRST:
+- Search your knowledge for "{brand_name}" as an existing business
+- Check if there's a company, cafe chain, restaurant, app, or product called "{brand_name}"
+- Regional brands in India, USA, or globally count!
+- Even small chains with 10+ locations should be flagged
 
 ⚠️ STRICT CONFLICT RULES - Flag as conflict if ANY of these apply:
-1. EXACT MATCH: Same name (case-insensitive)
-2. PLURALIZATION: Adding/removing 's' (MoneyControls = Moneycontrol, Bumbles = Bumble)
-3. PHONETIC SIMILARITY: Sounds similar when spoken (BUMBELL ≈ Bumble, Googel ≈ Google)
-4. LETTER VARIATIONS: Extra/missing letters (Nikee = Nike, Facebok = Facebook)
-5. SPACING CHANGES: With/without spaces (FaceBook = Facebook, Money Control = Moneycontrol)
-6. REGIONAL BRANDS: Indian apps, newspapers, businesses (Moneycontrol, Andhra Jyothi, Swiggy, etc.)
-7. GLOBAL BRANDS: Tech companies, apps, products
+1. EXACT BRAND EXISTS: A company/brand called "{brand_name}" already operates (even regionally)
+2. EXACT MATCH: Same name as another brand (case-insensitive)
+3. PLURALIZATION: Adding/removing 's' (MoneyControls = Moneycontrol)
+4. PHONETIC SIMILARITY: Sounds similar when spoken (BUMBELL ≈ Bumble)
+5. LETTER VARIATIONS: Extra/missing letters (Nikee = Nike)
+6. SPACING CHANGES: With/without spaces (FaceBook = Facebook)
+7. REGIONAL BRANDS: Indian cafes, restaurants, apps, newspapers (Chaayos, Chai Point, etc.)
+8. GLOBAL BRANDS: Tech companies, apps, products
 
-IMPORTANT: When in doubt, FLAG AS CONFLICT. Better to be overly cautious than miss a trademark issue.
+IMPORTANT: 
+- When in doubt, FLAG AS CONFLICT
+- If "{brand_name}" sounds like it could be an existing cafe/restaurant/business - CHECK CAREFULLY
+- Indian chai cafe chains to consider: Chaayos, Chai Point, Chai Sutta Bar, MBA Chai Wala, etc.
 
 RESPOND IN THIS EXACT JSON FORMAT:
 {{
@@ -770,14 +782,15 @@ RESPOND IN THIS EXACT JSON FORMAT:
     "conflicting_brand": "Name of existing brand" or null,
     "similarity_percentage": 0-100,
     "reason": "Brief explanation",
-    "brand_info": "What is the conflicting brand (1 sentence)"
+    "brand_info": "What is the conflicting brand (1 sentence)",
+    "brand_already_exists": true or false
 }}
 
 Examples (BE STRICT LIKE THESE):
-- "MoneyControls" in "Finance" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Moneycontrol", "similarity_percentage": 98, "reason": "Pluralized version of Moneycontrol - India's #1 finance app", "brand_info": "Moneycontrol is India's leading financial information platform"}}
-- "AndhraJyoothi" in "News" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Andhra Jyothi", "similarity_percentage": 98, "reason": "Phonetically identical to famous Telugu newspaper", "brand_info": "Andhra Jyothi is a major Telugu daily newspaper in India"}}
-- "BUMBELL" in "Dating" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Bumble", "similarity_percentage": 94, "reason": "Phonetically similar to Bumble dating app", "brand_info": "Bumble is a popular dating/social networking app"}}
-- "Zyntrix2025" in "Finance" → {{"has_conflict": false, "confidence": "HIGH", "conflicting_brand": null, "similarity_percentage": 0, "reason": "Completely unique invented name with no known matches", "brand_info": null}}
+- "Chaibunk" in "Cafe" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Chai Bunk", "similarity_percentage": 100, "reason": "Chai Bunk is an existing chai cafe chain in India with 100+ stores", "brand_info": "Chai Bunk is a popular Indian chai cafe chain", "brand_already_exists": true}}
+- "Chaayos" in "Cafe" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Chaayos", "similarity_percentage": 100, "reason": "Chaayos is a major chai cafe chain in India", "brand_info": "Chaayos is one of India's largest chai cafe chains", "brand_already_exists": true}}
+- "MoneyControls" in "Finance" → {{"has_conflict": true, "confidence": "HIGH", "conflicting_brand": "Moneycontrol", "similarity_percentage": 98, "reason": "Pluralized version of Moneycontrol", "brand_info": "Moneycontrol is India's leading financial platform", "brand_already_exists": false}}
+- "Zyntrix2025" in "Finance" → {{"has_conflict": false, "confidence": "HIGH", "conflicting_brand": null, "similarity_percentage": 0, "reason": "Completely unique invented name", "brand_info": null, "brand_already_exists": false}}
 
 NOW ANALYZE: "{brand_name}" in "{category or 'General'}"
 Return ONLY the JSON, no other text."""
