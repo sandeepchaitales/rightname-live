@@ -1180,10 +1180,11 @@ async def evaluate_brands(request: BrandEvaluationRequest):
     # ==================== END EARLY STOPPING ====================
     
     if LlmChat and EMERGENT_KEY:
-        # Try primary model first, then fallback
+        # Try primary model first, then fallbacks (faster fallback chain)
         models_to_try = [
-            ("openai", "gpt-5.2"),      # Latest OpenAI model
-            ("openai", "gpt-4o"),        # Fallback model
+            ("openai", "gpt-4o"),        # Most stable OpenAI model
+            ("openai", "gpt-4.1"),       # Fallback model 1
+            ("openai", "gpt-5.2"),       # Fallback model 2 (newer but may have issues)
         ]
     else:
         raise HTTPException(status_code=500, detail="LLM Integration not initialized (Check EMERGENT_LLM_KEY)")
