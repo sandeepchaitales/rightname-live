@@ -1775,15 +1775,18 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 print:bg-white">
-            {/* Print Styles */}
+            {/* Print Styles - Enhanced Page Break Control */}
             <style>{`
                 @media print {
-                    @page { size: A4 portrait; margin: 12mm; }
+                    @page { size: A4 portrait; margin: 10mm; }
                     body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                     .print-card { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 8px; }
                     .no-print { display: none !important; }
-                    .print-page-break { page-break-before: always !important; break-before: page !important; }
+                    /* Force new page for each major section (except pages 1 & 2) */
+                    .print-new-page { page-break-before: always !important; break-before: page !important; }
                     .print-section { break-inside: avoid !important; }
+                    /* Keep section headers with their content */
+                    .section-header { break-after: avoid !important; page-break-after: avoid !important; }
                 }
             `}</style>
 
