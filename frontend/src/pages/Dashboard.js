@@ -34,7 +34,7 @@ const formatCountriesWithFlags = (countries) => {
 
 // ============ PRINT-SAFE CARD WRAPPER ============
 const PrintCard = ({ children, className = "" }) => (
-    <div className={`print-card break-inside-avoid ${className}`}>
+    <div className={`print-card break-inside-avoid pdf-no-break ${className}`}>
         {children}
     </div>
 );
