@@ -1202,10 +1202,10 @@ async def evaluate_brands(request: BrandEvaluationRequest):
     # ==================== END EARLY STOPPING ====================
     
     if LlmChat and EMERGENT_KEY:
-        # gpt-4o produces better quality reports with all dimensions
+        # gpt-4o-mini first (more reliable), gpt-4o as fallback
         models_to_try = [
-            ("openai", "gpt-4o"),                          # Primary - Best quality
-            ("openai", "gpt-4o-mini"),                     # Fallback 1 - Faster
+            ("openai", "gpt-4o-mini"),                     # Primary - Most reliable
+            ("openai", "gpt-4o"),                          # Fallback 1 - Better quality
             ("anthropic", "claude-sonnet-4-20250514"),     # Fallback 2 - Claude
         ]
     else:
