@@ -1714,7 +1714,7 @@ const Dashboard = () => {
         openAuthModal(reportData?.report_id);
     };
 
-    // PDF Download function
+    // PDF Download function - Simplified approach
     const handleDownloadPDF = async () => {
         if (!reportRef.current) return;
         
@@ -1725,199 +1725,133 @@ const Dashboard = () => {
             const brand = reportData?.brand_scores?.[0];
             const dims = brand?.dimensions || [];
             
-            // Create a temporary container for PDF
+            // Create PDF container
             const pdfContainer = document.createElement('div');
-            pdfContainer.style.position = 'absolute';
-            pdfContainer.style.left = '-9999px';
-            pdfContainer.style.top = '0';
-            pdfContainer.style.width = '210mm';
-            pdfContainer.style.background = 'white';
-            pdfContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif';
+            pdfContainer.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;background:white;font-family:system-ui,-apple-system,sans-serif;';
             document.body.appendChild(pdfContainer);
             
-            // Helper function for dimension cards
-            const getDimCards = () => {
-                return dims.map((dim, i) => {
-                    const icons = ['✨', '🌍', '💎', '📈', '⚖️', '🎯', '🔮', '🎨'];
-                    const score = dim.score || 0;
-                    const bgColor = score >= 8 ? '#d1fae5' : score >= 6 ? '#ede9fe' : '#fef3c7';
-                    const textColor = score >= 8 ? '#047857' : score >= 6 ? '#6d28d9' : '#b45309';
-                    return `
-                        <div style="break-inside: avoid; page-break-inside: avoid; margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-                            <div style="background: ${bgColor}; padding: 16px; border-bottom: 1px solid #e2e8f0;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="font-size: 20px;">${icons[i % icons.length]}</span>
-                                        <span style="font-weight: 700; color: #1e293b;">${dim.name || 'Dimension ' + (i+1)}</span>
-                                    </div>
-                                    <span style="background: linear-gradient(to right, ${textColor}, ${textColor}); color: white; padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 14px;">${score}/10</span>
-                                </div>
-                            </div>
-                            <div style="padding: 16px;">
-                                <div style="height: 8px; background: #f1f5f9; border-radius: 9999px; overflow: hidden; margin-bottom: 16px;">
-                                    <div style="height: 100%; width: ${score * 10}%; background: ${textColor}; border-radius: 9999px;"></div>
-                                </div>
-                                <p style="font-size: 13px; color: #475569; line-height: 1.6;">${dim.reasoning || 'No detailed analysis available.'}</p>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            };
+            // Build dimension cards HTML
+            let dimCardsHtml = '';
+            const icons = ['✨', '🌍', '💎', '📈', '⚖️', '🎯', '🔮', '🎨'];
+            dims.forEach((dim, i) => {
+                const score = dim.score || 0;
+                const bgColor = score >= 8 ? '#d1fae5' : score >= 6 ? '#ede9fe' : '#fef3c7';
+                const textColor = score >= 8 ? '#047857' : score >= 6 ? '#6d28d9' : '#b45309';
+                dimCardsHtml += '<div style="break-inside:avoid;page-break-inside:avoid;margin-bottom:16px;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">';
+                dimCardsHtml += '<div style="background:' + bgColor + ';padding:16px;border-bottom:1px solid #e2e8f0;">';
+                dimCardsHtml += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                dimCardsHtml += '<div style="display:flex;align-items:center;gap:8px;">';
+                dimCardsHtml += '<span style="font-size:20px;">' + icons[i % icons.length] + '</span>';
+                dimCardsHtml += '<span style="font-weight:700;color:#1e293b;">' + (dim.name || 'Dimension') + '</span>';
+                dimCardsHtml += '</div>';
+                dimCardsHtml += '<span style="background:' + textColor + ';color:white;padding:4px 12px;border-radius:9999px;font-weight:700;font-size:14px;">' + score + '/10</span>';
+                dimCardsHtml += '</div></div>';
+                dimCardsHtml += '<div style="padding:16px;">';
+                dimCardsHtml += '<div style="height:8px;background:#f1f5f9;border-radius:9999px;overflow:hidden;margin-bottom:16px;">';
+                dimCardsHtml += '<div style="height:100%;width:' + (score * 10) + '%;background:' + textColor + ';border-radius:9999px;"></div>';
+                dimCardsHtml += '</div>';
+                dimCardsHtml += '<p style="font-size:13px;color:#475569;line-height:1.6;">' + (dim.reasoning || 'No analysis available.') + '</p>';
+                dimCardsHtml += '</div></div>';
+            });
             
-            // Build complete PDF HTML
+            // Build performance grid HTML
+            let perfGridHtml = '';
+            dims.forEach((dim) => {
+                const score = dim.score || 0;
+                const bgColor = score >= 8 ? '#d1fae5' : score >= 6 ? '#ede9fe' : '#fef3c7';
+                const textColor = score >= 8 ? '#047857' : score >= 6 ? '#6d28d9' : '#b45309';
+                const shortName = (dim.name || '').substring(0, 18);
+                perfGridHtml += '<div style="background:' + bgColor + ';border-radius:8px;padding:12px;text-align:center;">';
+                perfGridHtml += '<div style="font-size:24px;font-weight:900;color:' + textColor + ';">' + score + '</div>';
+                perfGridHtml += '<div style="font-size:10px;color:' + textColor + ';font-weight:600;">' + shortName + '</div>';
+                perfGridHtml += '</div>';
+            });
+            
+            // Verdict styling
+            const verdictStyle = brand?.verdict === 'GO' ? 'background:#d1fae5;color:#047857;' :
+                brand?.verdict === 'CONDITIONAL GO' ? 'background:#fef3c7;color:#b45309;' : 'background:#fee2e2;color:#b91c1c;';
+            
+            // Pros/Cons HTML
+            let prosConsHtml = '';
+            if (brand?.pros && brand?.cons) {
+                prosConsHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">';
+                prosConsHtml += '<div style="background:#f0fdf4;border-radius:12px;padding:20px;">';
+                prosConsHtml += '<h4 style="color:#166534;font-weight:700;margin-bottom:12px;">✅ Strengths</h4><ul style="margin:0;padding-left:20px;color:#166534;">';
+                (brand.pros || []).forEach(p => { prosConsHtml += '<li style="margin-bottom:8px;font-size:13px;">' + p + '</li>'; });
+                prosConsHtml += '</ul></div>';
+                prosConsHtml += '<div style="background:#fef2f2;border-radius:12px;padding:20px;">';
+                prosConsHtml += '<h4 style="color:#991b1b;font-weight:700;margin-bottom:12px;">⚠️ Risks</h4><ul style="margin:0;padding-left:20px;color:#991b1b;">';
+                (brand.cons || []).forEach(c => { prosConsHtml += '<li style="margin-bottom:8px;font-size:13px;">' + c + '</li>'; });
+                prosConsHtml += '</ul></div></div>';
+            }
+            
+            // Complete PDF HTML
             const pdfHtml = `
-                <!-- PAGE 1: COVER PAGE -->
-                <div style="min-height: 297mm; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: white; page-break-after: always;">
-                    <img src="${LOGO_URL}" alt="RIGHTNAME" style="height: 80px; margin-bottom: 24px;" crossorigin="anonymous" />
-                    <h1 style="font-size: 48px; font-weight: 900; color: #0f172a; margin-bottom: 16px; text-align: center;">${brand?.brand_name || brandName}</h1>
-                    <div style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 32px; border-radius: 9999px; font-size: 24px; font-weight: 900; margin-bottom: 24px; ${
-                        brand?.verdict === 'GO' ? 'background: #d1fae5; color: #047857;' :
-                        brand?.verdict === 'CONDITIONAL GO' ? 'background: #fef3c7; color: #b45309;' :
-                        'background: #fee2e2; color: #b91c1c;'
-                    }">
+                <div style="min-height:297mm;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;background:white;page-break-after:always;">
+                    <img src="${LOGO_URL}" alt="RIGHTNAME" style="height:80px;margin-bottom:24px;" crossorigin="anonymous" />
+                    <h1 style="font-size:48px;font-weight:900;color:#0f172a;margin-bottom:16px;text-align:center;">${brand?.brand_name || brandName}</h1>
+                    <div style="display:inline-flex;align-items:center;gap:12px;padding:16px 32px;border-radius:9999px;font-size:24px;font-weight:900;margin-bottom:24px;${verdictStyle}">
                         ${brand?.namescore}/100 • ${brand?.verdict}
                     </div>
-                    <div style="color: #475569; text-align: center; margin-bottom: 16px;">
-                        <p style="font-size: 18px; font-weight: 600;">${queryData?.category || ''} • ${queryData?.countries?.join(', ') || ''}</p>
-                        <p style="color: #64748b; margin-top: 8px;">${currentDate}</p>
+                    <div style="color:#475569;text-align:center;margin-bottom:16px;">
+                        <p style="font-size:18px;font-weight:600;">${queryData?.category || ''} • ${queryData?.countries?.join(', ') || ''}</p>
+                        <p style="color:#64748b;margin-top:8px;">${currentDate}</p>
                     </div>
-                    <div style="width: 160px; height: 4px; background: linear-gradient(to right, #8b5cf6, #d946ef, #f97316); border-radius: 9999px; margin: 24px auto;"></div>
-                    <p style="font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.3em; font-weight: 600;">Brand Name Analysis Report</p>
-                    <p style="font-size: 10px; color: #94a3b8; margin-top: 8px;">Report ID: ${reportData?.report_id || ''}</p>
-                    
-                    <div style="width: 100%; max-width: 400px; margin-top: 40px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
-                        <div style="background: #1e293b; padding: 12px; text-align: center;">
-                            <h3 style="font-size: 12px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.1em; margin: 0;">Evaluation Request Summary</h3>
+                    <div style="width:160px;height:4px;background:linear-gradient(to right,#8b5cf6,#d946ef,#f97316);border-radius:9999px;margin:24px auto;"></div>
+                    <p style="font-size:12px;color:#64748b;text-transform:uppercase;letter-spacing:0.3em;font-weight:600;">Brand Name Analysis Report</p>
+                    <p style="font-size:10px;color:#94a3b8;margin-top:8px;">Report ID: ${reportData?.report_id || ''}</p>
+                    <div style="width:100%;max-width:400px;margin-top:40px;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+                        <div style="background:#1e293b;padding:12px;text-align:center;">
+                            <h3 style="font-size:12px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Evaluation Request Summary</h3>
                         </div>
-                        <table style="width: 100%; font-size: 14px; border-collapse: collapse; background: white;">
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td style="padding: 12px 16px; color: #64748b;">Brand Name</td>
-                                <td style="padding: 12px 16px; color: #0f172a; font-weight: 700; text-align: right;">${brand?.brand_name || brandName}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td style="padding: 12px 16px; color: #64748b;">Industry</td>
-                                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; text-align: right;">${queryData?.industry || 'N/A'}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td style="padding: 12px 16px; color: #64748b;">Category</td>
-                                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; text-align: right;">${queryData?.category || 'N/A'}</td>
-                            </tr>
-                            <tr style="border-bottom: 1px solid #f1f5f9;">
-                                <td style="padding: 12px 16px; color: #64748b;">Positioning</td>
-                                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; text-align: right;">${queryData?.positioning || 'N/A'}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 12px 16px; color: #64748b;">Countries</td>
-                                <td style="padding: 12px 16px; color: #0f172a; font-weight: 600; text-align: right;">${queryData?.countries?.join(', ') || 'N/A'}</td>
-                            </tr>
+                        <table style="width:100%;font-size:14px;border-collapse:collapse;background:white;">
+                            <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 16px;color:#64748b;">Brand Name</td><td style="padding:12px 16px;color:#0f172a;font-weight:700;text-align:right;">${brand?.brand_name || brandName}</td></tr>
+                            <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 16px;color:#64748b;">Industry</td><td style="padding:12px 16px;color:#0f172a;font-weight:600;text-align:right;">${queryData?.industry || 'N/A'}</td></tr>
+                            <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 16px;color:#64748b;">Category</td><td style="padding:12px 16px;color:#0f172a;font-weight:600;text-align:right;">${queryData?.category || 'N/A'}</td></tr>
+                            <tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px 16px;color:#64748b;">Positioning</td><td style="padding:12px 16px;color:#0f172a;font-weight:600;text-align:right;">${queryData?.positioning || 'N/A'}</td></tr>
+                            <tr><td style="padding:12px 16px;color:#64748b;">Countries</td><td style="padding:12px 16px;color:#0f172a;font-weight:600;text-align:right;">${queryData?.countries?.join(', ') || 'N/A'}</td></tr>
                         </table>
                     </div>
-                    
-                    <div style="margin-top: auto; padding-top: 40px; text-align: center;">
-                        <p style="font-size: 10px; color: #94a3b8;">https://rightname.ai</p>
-                    </div>
+                    <div style="margin-top:auto;padding-top:40px;text-align:center;"><p style="font-size:10px;color:#94a3b8;">https://rightname.ai</p></div>
                 </div>
                 
-                <!-- PAGE 2: EXECUTIVE SUMMARY -->
-                <div style="padding: 20px; background: white;">
-                    <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 16px; padding: 24px; margin-bottom: 24px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                            <span style="font-size: 16px;">⭐</span>
-                            <span style="font-size: 12px; font-weight: 700; color: #b45309; text-transform: uppercase; letter-spacing: 0.1em;">Executive Summary</span>
+                <div style="padding:20px;background:white;">
+                    <div style="background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-radius:16px;padding:24px;margin-bottom:24px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                            <span style="font-size:16px;">⭐</span>
+                            <span style="font-size:12px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:0.1em;">Executive Summary</span>
                         </div>
-                        <p style="color: #334155; line-height: 1.7; font-size: 14px;">${data?.executive_summary || 'No executive summary available.'}</p>
+                        <p style="color:#334155;line-height:1.7;font-size:14px;">${data?.executive_summary || 'No executive summary available.'}</p>
                     </div>
-                    
-                    ${brand?.pros && brand?.cons ? `
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-                        <div style="background: #f0fdf4; border-radius: 12px; padding: 20px;">
-                            <h4 style="color: #166534; font-weight: 700; margin-bottom: 12px;">✅ Strengths</h4>
-                            <ul style="margin: 0; padding-left: 20px; color: #166534;">
-                                ${(brand.pros || []).map(p => `<li style="margin-bottom: 8px; font-size: 13px;">${p}</li>`).join('')}
-                            </ul>
-                        </div>
-                        <div style="background: #fef2f2; border-radius: 12px; padding: 20px;">
-                            <h4 style="color: #991b1b; font-weight: 700; margin-bottom: 12px;">⚠️ Risks</h4>
-                            <ul style="margin: 0; padding-left: 20px; color: #991b1b;">
-                                ${(brand.cons || []).map(c => `<li style="margin-bottom: 8px; font-size: 13px;">${c}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                    ` : ''}
+                    ${prosConsHtml}
                 </div>
                 
-                <!-- PAGE 3: WHAT'S IN THE NAME + DETAILED FRAMEWORK ANALYSIS -->
-                <div style="page-break-before: always; padding: 20px; background: white;">
-                    <!-- Banner -->
-                    <div style="background: linear-gradient(to right, #7c3aed, #d946ef, #f97316); border-radius: 16px; padding: 32px; text-align: center; margin-bottom: 24px;">
-                        <h2 style="font-size: 32px; font-weight: 900; color: white; margin: 0;">What's in the Name?</h2>
-                        <p style="color: rgba(255,255,255,0.8); margin-top: 8px; font-size: 16px;">Deep dive into your brand's DNA</p>
+                <div style="page-break-before:always;padding:20px;background:white;">
+                    <div style="background:linear-gradient(to right,#7c3aed,#d946ef,#f97316);border-radius:16px;padding:32px;text-align:center;margin-bottom:24px;">
+                        <h2 style="font-size:32px;font-weight:900;color:white;margin:0;">What's in the Name?</h2>
+                        <p style="color:rgba(255,255,255,0.8);margin-top:8px;font-size:16px;">Deep dive into your brand's DNA</p>
                     </div>
                     
-                    <!-- Performance Radar Placeholder (Since SVG doesn't render well) -->
                     ${dims.length > 0 ? `
-                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                            <div style="width: 32px; height: 32px; border-radius: 8px; background: #f5d0fe; display: flex; align-items: center; justify-content: center;">🎯</div>
-                            <div>
-                                <h3 style="font-size: 14px; font-weight: 700; color: #1e293b; margin: 0;">Performance Overview</h3>
-                                <p style="font-size: 12px; color: #64748b; margin: 0;">Dimension scores at a glance</p>
-                            </div>
+                    <div style="background:white;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:24px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                            <div style="width:32px;height:32px;border-radius:8px;background:#f5d0fe;display:flex;align-items:center;justify-content:center;">🎯</div>
+                            <div><h3 style="font-size:14px;font-weight:700;color:#1e293b;margin:0;">Performance Overview</h3><p style="font-size:12px;color:#64748b;margin:0;">Dimension scores at a glance</p></div>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                            ${dims.map((dim, i) => {
-                                const score = dim.score || 0;
-                                const bgColor = score >= 8 ? '#d1fae5' : score >= 6 ? '#ede9fe' : '#fef3c7';
-                                const textColor = score >= 8 ? '#047857' : score >= 6 ? '#6d28d9' : '#b45309';
-                                return `
-                                    <div style="background: ${bgColor}; border-radius: 8px; padding: 12px; text-align: center;">
-                                        <div style="font-size: 24px; font-weight: 900; color: ${textColor};">${score}</div>
-                                        <div style="font-size: 10px; color: ${textColor}; font-weight: 600;">${(dim.name || '').substring(0, 20)}</div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">${perfGridHtml}</div>
                     </div>
                     ` : ''}
                     
-                    <!-- Detailed Framework Analysis Header -->
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
-                        <div style="width: 40px; height: 40px; border-radius: 12px; background: #f5d0fe; display: flex; align-items: center; justify-content: center;">📊</div>
-                        <div>
-                            <h3 style="font-size: 18px; font-weight: 700; color: #1e293b; margin: 0;">Detailed Framework Analysis</h3>
-                            <p style="font-size: 13px; color: #64748b; margin: 0;">In-depth scoring breakdown</p>
-                        </div>
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#f5d0fe;display:flex;align-items:center;justify-content:center;">📊</div>
+                        <div><h3 style="font-size:18px;font-weight:700;color:#1e293b;margin:0;">Detailed Framework Analysis</h3><p style="font-size:13px;color:#64748b;margin:0;">In-depth scoring breakdown</p></div>
                     </div>
                     
-                    <!-- Dimension Cards -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        ${getDimCards()}
-                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">${dimCardsHtml}</div>
                 </div>
             `;
             
             pdfContainer.innerHTML = pdfHtml;
-            
-            // Also append remaining sections from the report
-            const remainingSections = reportRef.current.cloneNode(true);
-            remainingSections.querySelectorAll('.no-print').forEach(el => el.remove());
-            
-            // Find and add Digital Presence and other sections
-            const digitalPresence = remainingSections.querySelector('[class*="Digital"]')?.closest('section');
-            const marketIntel = remainingSections.querySelector('[class*="Market"]')?.closest('section');
-            const competitive = remainingSections.querySelector('[class*="Competitive"]')?.closest('section');
-            const legal = remainingSections.querySelector('[class*="Legal"]')?.closest('section');
-            const trademark = remainingSections.querySelector('[class*="Trademark"]')?.closest('section');
-            
-            // Append remaining sections with page breaks
-            [digitalPresence, marketIntel, competitive, legal, trademark].forEach(section => {
-                if (section) {
-                    const wrapper = document.createElement('div');
-                    wrapper.style.pageBreakBefore = 'always';
-                    wrapper.appendChild(section.cloneNode(true));
-                    pdfContainer.appendChild(wrapper);
-                }
-            });
             
             const opt = {
                 margin: [10, 10, 15, 10],
@@ -1926,7 +1860,7 @@ const Dashboard = () => {
                 html2canvas: { 
                     scale: 1.5,
                     useCORS: true,
-                    logging: false,
+                    logging: true,
                     letterRendering: true,
                     allowTaint: true
                 },
@@ -1935,20 +1869,15 @@ const Dashboard = () => {
                     format: 'a4', 
                     orientation: 'portrait' 
                 },
-                pagebreak: { 
-                    mode: ['css', 'legacy'],
-                    avoid: ['tr', 'td', '.pdf-no-break']
-                }
+                pagebreak: { mode: ['css', 'legacy'] }
             };
             
             await html2pdf().set(opt).from(pdfContainer).save();
-            
-            // Clean up
             document.body.removeChild(pdfContainer);
             
         } catch (error) {
             console.error('PDF generation failed:', error);
-            window.print();
+            alert('PDF generation failed. Please try again or use browser print (Ctrl+P).');
         } finally {
             setDownloading(false);
         }
