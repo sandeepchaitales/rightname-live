@@ -745,64 +745,21 @@ INAPPROPRIATE_PATTERNS = [
 
 def check_inappropriate_name(brand_name: str) -> dict:
     """
-    Check if brand name contains or sounds like inappropriate/offensive words.
-    Returns rejection info if inappropriate.
+    Check if brand name contains inappropriate/offensive words.
+    Only checks for EXACT pattern matches to avoid false positives.
     """
-    import re
-    
     normalized = brand_name.lower().strip().replace(" ", "").replace("-", "").replace("_", "")
     
-    # Check for inappropriate patterns
+    # Check for inappropriate patterns - EXACT MATCH ONLY
     for pattern in INAPPROPRIATE_PATTERNS:
         if pattern in normalized:
             return {
                 "is_inappropriate": True,
                 "matched_pattern": pattern,
-                "reason": f"'{brand_name}' contains or sounds like inappropriate/offensive content. This brand name would cause serious reputational damage and cannot be used commercially."
+                "reason": f"'{brand_name}' contains inappropriate/offensive content. This brand name cannot be used commercially."
             }
     
-    # Phonetic check - check if it SOUNDS like something inappropriate
-    # "Classbate" sounds like "Masturbate"
-    phonetic_checks = [
-        ("bate", ["masturbate", "masterbate"]),  # -bate ending
-        ("bait", ["masturbait", "masterbait"]),  # -bait ending  
-        ("porn", ["porn", "pron"]),
-        ("hore", ["whore"]),
-        ("slut", ["slut"]),
-        ("fuk", ["fuck"]),
-        ("sht", ["shit"]),
-    ]
-    
-    for ending, sounds_like in phonetic_checks:
-        if normalized.endswith(ending) or ending in normalized:
-            # Check the full word context
-            for bad_word in sounds_like:
-                # If the brand sounds similar to a bad word
-                if _sounds_similar(normalized, bad_word):
-                    return {
-                        "is_inappropriate": True,
-                        "matched_pattern": bad_word,
-                        "reason": f"'{brand_name}' phonetically resembles inappropriate content ('{bad_word}'). This would cause serious brand reputation issues."
-                    }
-    
     return {"is_inappropriate": False}
-
-def _sounds_similar(word1: str, word2: str) -> bool:
-    """Check if two words sound similar using simple phonetic matching"""
-    # Simple check: if the ending matches and length is similar
-    if len(word1) < 4 or len(word2) < 4:
-        return False
-    
-    # Check suffix similarity
-    if word1[-4:] == word2[-4:]:
-        return True
-    
-    # Check if one contains significant part of other
-    if len(word1) >= 6 and len(word2) >= 6:
-        if word1[-5:] == word2[-5:] or word1[-6:] == word2[-6:]:
-            return True
-    
-    return False
 
 
 async def dynamic_brand_search(brand_name: str, category: str = "") -> dict:
