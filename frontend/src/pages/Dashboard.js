@@ -1990,24 +1990,19 @@ const Dashboard = () => {
 
                 {/* ==================== PAGE 4+: WHAT'S IN THE NAME + 6 DIMENSIONS (STACKED) ==================== */}
                 {brand.dimensions && (
-                    <section className="pdf-page-break print-new-page">
+                    <section className="print-new-page">
                         {/* Banner */}
-                        <div className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 rounded-2xl p-8 text-center mb-6">
-                            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+                        <div className="bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 rounded-2xl p-8 text-center mb-6 print:p-6 print:mb-4">
+                            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight print:text-2xl">
                                 What's in the Name?
                             </h2>
-                            <p className="text-white/80 mt-2 text-lg">Deep dive into your brand's DNA</p>
+                            <p className="text-white/80 mt-2 text-lg print:text-sm">Deep dive into your brand's DNA</p>
                         </div>
                         
-                        {/* Performance Radar Chart */}
-                        <div className="mb-6">
-                            <PerformanceRadar dimensions={brand.dimensions} brandName={brand.brand_name} />
-                        </div>
-                        
-                        {/* Detailed Framework Analysis */}
+                        {/* Detailed Framework Analysis - 6 DIMENSIONS STACKED VERTICALLY FOR PRINT */}
                         <SectionHeader icon={BarChart3} title="Detailed Framework Analysis" subtitle="In-depth scoring breakdown" color="fuchsia" />
                         {isAuthenticated ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-1 print:gap-3">
                                 {brand.dimensions.map((dim, i) => (
                                     <DetailedDimensionCard key={i} dimension={dim} index={i} />
                                 ))}
@@ -2018,7 +2013,7 @@ const Dashboard = () => {
                     </section>
                 )}
 
-                {/* SECTION 6: DIGITAL PRESENCE - New Page */}
+                {/* ==================== NEW PAGE: DIGITAL PRESENCE ==================== */}
                 {(brand.multi_domain_availability || brand.social_availability) && (
                     <section className="print-section pdf-page-break print-new-page">
                         <SectionHeader icon={Globe} title="Digital Presence Check" subtitle="Domain & social availability" color="cyan" badge={`${brand.multi_domain_availability?.category_domains?.filter(d => d.available).length || 0}/${brand.multi_domain_availability?.category_domains?.length || 0} Available`} />
