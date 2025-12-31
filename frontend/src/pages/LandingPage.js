@@ -9,7 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap, AlertCircle, LogIn, LogOut, User, CheckCircle, Star, Rocket, Target, Trophy, Heart, TrendingUp, Users, Building2, Briefcase, ChevronDown, ChevronUp, FileText, Clock, DollarSign, MessageSquare, Quote } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Loader2, Sparkles, ShieldCheck, Globe2, BrainCircuit, Search, ArrowRight, Zap, AlertCircle, LogIn, LogOut, User, CheckCircle, Star, Rocket, Target, Trophy, Heart, TrendingUp, Users, Building2, Briefcase, ChevronDown, ChevronUp, FileText, Clock, DollarSign, MessageSquare, Quote, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { ReportCarousel } from '../components/ReportPreview';
 import Footer from '../components/Footer';
