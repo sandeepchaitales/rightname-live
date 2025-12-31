@@ -6,6 +6,8 @@ import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import AuthCallback from "./pages/AuthCallback";
 import BlogPage from "./pages/BlogPage";
+import BrandAuditLanding from "./pages/BrandAuditLanding";
+import BrandAuditDashboard from "./pages/BrandAuditDashboard";
 import { AuthProvider } from "./contexts/AuthContext";
 import AuthModal from "./components/AuthModal";
 import { Toaster } from "@/components/ui/sonner";
@@ -26,6 +28,8 @@ function AppRouter() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/blog" element={<BlogPage />} />
+      <Route path="/brand-audit" element={<BrandAuditLanding />} />
+      <Route path="/brand-audit/results" element={<BrandAuditDashboard />} />
     </Routes>
   );
 }
