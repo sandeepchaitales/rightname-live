@@ -1775,22 +1775,20 @@ const Dashboard = () => {
             {/* Print Styles */}
             <style>{`
                 @media print {
-                    @page { size: A4 portrait; margin: 10mm; }
-                    body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                    img { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; max-width: 100%; }
-                    .print-card { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 8px; }
-                    .no-print { display: none !important; }
-                    .pdf-page-break, .print-new-page { page-break-before: always !important; break-before: page !important; }
-                    .pdf-no-break { page-break-inside: avoid !important; break-inside: avoid !important; }
-                    .print-section { break-inside: avoid !important; }
-                    .section-header { break-after: avoid !important; page-break-after: avoid !important; }
+                    @page { size: A4 portrait; margin: 12mm; }
                     
-                    /* COVER PAGE - Make visible and properly positioned for print */
-                    [style*="visibility: hidden"] {
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    
+                    body { margin: 0; padding: 0; }
+                    
+                    .no-print { display: none !important; }
+                    
+                    /* COVER PAGE */
+                    .cover-page-container {
                         position: static !important;
                         left: auto !important;
                         visibility: visible !important;
-                        width: auto !important;
+                        width: 100% !important;
                         display: flex !important;
                         flex-direction: column !important;
                         min-height: 100vh !important;
@@ -1799,6 +1797,31 @@ const Dashboard = () => {
                         background: white !important;
                         padding: 2rem !important;
                         page-break-after: always !important;
+                        break-after: page !important;
+                    }
+                    
+                    /* PAGE BREAKS */
+                    .print-new-page { 
+                        page-break-before: always !important; 
+                        break-before: page !important;
+                        margin-top: 0 !important;
+                        padding-top: 1rem !important;
+                    }
+                    
+                    /* PREVENT BREAKS INSIDE CARDS */
+                    .print-card, section, .print-section { 
+                        break-inside: avoid !important; 
+                        page-break-inside: avoid !important;
+                        margin-bottom: 1rem !important;
+                    }
+                    
+                    /* MAIN CONTENT */
+                    main {
+                        padding: 0 !important;
+                    }
+                    
+                    main > * {
+                        margin-bottom: 1rem !important;
                     }
                 }
             `}</style>
