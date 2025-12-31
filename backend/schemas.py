@@ -342,10 +342,10 @@ class BrandScore(BaseModel):
     trademark_risk: Optional[dict] = Field(default={})
     trademark_matrix: Optional[TrademarkRiskMatrix] = None
     trademark_classes: List[str] = Field(default=[], description="List of Nice Classes")
-    # Enhanced trademark research data
-    trademark_research: Optional[TrademarkResearchData] = Field(default=None, description="Real-time trademark research findings")
-    registration_timeline: Optional[RegistrationTimeline] = Field(default=None, description="Expected registration timeline and costs")
-    mitigation_strategies: List[MitigationStrategy] = Field(default=[], description="Risk mitigation strategies")
+    # Enhanced trademark research data - Made flexible to handle LLM variations
+    trademark_research: Optional[Any] = Field(default=None, description="Real-time trademark research findings")
+    registration_timeline: Optional[Any] = Field(default=None, description="Expected registration timeline and costs")
+    mitigation_strategies: Optional[Any] = Field(default=[], description="Risk mitigation strategies")
     domain_analysis: Optional[DomainAnalysis] = None
     multi_domain_availability: Optional[MultiDomainAvailability] = None
     social_availability: Optional[SocialAvailability] = None
