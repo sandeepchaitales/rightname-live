@@ -1806,11 +1806,11 @@ const Dashboard = () => {
                         >
                             {downloading ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 animate-spin" /> Generating PDF...
+                                    <Loader2 className="h-4 w-4 animate-spin" /> Opening Print...
                                 </>
                             ) : (
                                 <>
-                                    <Download className="h-4 w-4" /> Download PDF
+                                    <Printer className="h-4 w-4" /> Print / Save PDF
                                 </>
                             )}
                         </Button>
