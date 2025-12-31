@@ -1775,10 +1775,10 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 print:bg-white">
-            {/* Preload logo for print - hidden but forces browser to cache image */}
+            {/* Preload logo for print */}
             <img src={LOGO_URL} alt="" style={{ position: 'absolute', width: 1, height: 1, opacity: 0 }} />
             
-            {/* Print Styles - Enhanced Page Break Control */}
+            {/* Print Styles */}
             <style>{`
                 @media print {
                     @page { size: A4 portrait; margin: 10mm; }
@@ -1787,10 +1787,25 @@ const Dashboard = () => {
                     .print-card { break-inside: avoid !important; page-break-inside: avoid !important; margin-bottom: 8px; }
                     .no-print { display: none !important; }
                     .pdf-page-break, .print-new-page { page-break-before: always !important; break-before: page !important; }
-                    .pdf-page-break { page-break-before: always !important; break-before: page !important; }
                     .pdf-no-break { page-break-inside: avoid !important; break-inside: avoid !important; }
                     .print-section { break-inside: avoid !important; }
                     .section-header { break-after: avoid !important; page-break-after: avoid !important; }
+                    
+                    /* COVER PAGE - Make visible and properly positioned for print */
+                    [style*="visibility: hidden"] {
+                        position: static !important;
+                        left: auto !important;
+                        visibility: visible !important;
+                        width: auto !important;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        min-height: 100vh !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        background: white !important;
+                        padding: 2rem !important;
+                        page-break-after: always !important;
+                    }
                 }
             `}</style>
 
