@@ -268,9 +268,11 @@ metadata:
 test_plan:
   current_focus:
     - "POST /api/evaluate - Brand Evaluation Endpoint"
+    - "POST /api/brand-audit - Brand Audit Endpoint"
     - "Dashboard - Display Results"
     - "Landing Page Form"
-  stuck_tasks: []
+  stuck_tasks:
+    - "POST /api/brand-audit - Brand Audit Endpoint"
   test_all: true
   test_priority: "high_first"
 
