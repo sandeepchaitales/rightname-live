@@ -492,11 +492,11 @@ class BrandAuditResponse(BaseModel):
     long_term_recommendations: List[StrategicRecommendation] = Field(default=[], description="18-36 months")
     
     # Risk Analysis
-    risks: List[Dict[str, str]] = Field(default=[], description="Risk and mitigation pairs")
+    risks: List[Dict[str, Any]] = Field(default=[], description="Risk and mitigation pairs")
     
     # Research Transparency
     search_queries: List[str] = Field(default=[], description="All 12 search queries used")
-    sources: List[Dict[str, str]] = Field(default=[], description="All sources with citations")
+    sources: List[Dict[str, Any]] = Field(default=[], description="All sources with citations")
     data_confidence: Optional[str] = Field(default="MEDIUM", description="Overall data confidence")
     
     # Metadata
