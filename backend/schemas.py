@@ -439,6 +439,9 @@ class StrategicRecommendation(BaseModel):
     expected_outcome: Optional[str] = None
     success_metric: Optional[str] = None
     priority: Optional[str] = Field(default="MEDIUM", description="HIGH/MEDIUM/LOW")
+    timeline: Optional[str] = None
+    estimated_cost: Optional[str] = None
+    implementation_steps: Optional[List[str]] = Field(default=[])
 
 class BrandAuditDimension(BaseModel):
     """8-dimension scoring for brand audit"""
