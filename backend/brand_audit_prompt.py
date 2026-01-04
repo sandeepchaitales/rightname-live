@@ -288,19 +288,51 @@ Respond with ONLY valid JSON in this structure:
   "recommendations": {
     "immediate": [
       {
-        "title": "<recommendation title>",
+        "title": "<recommendation title - be specific>",
         "priority": "CRITICAL",
-        "current_state": "<what is happening now>",
-        "root_cause": "<why this is an issue>",
-        "recommended_action": "<specific action with details>",
-        "expected_outcome": "<what will improve>",
-        "success_metric": "<how to measure>",
-        "timeline": "<X months>",
-        "estimated_cost": "<₹X lakh>"
+        "current_state": "<detailed description of what is happening now - 2-3 sentences>",
+        "root_cause": "<why this is an issue - explain the underlying problem>",
+        "recommended_action": "<very specific action with step-by-step details - minimum 3-4 sentences>",
+        "expected_outcome": "<quantified outcome - what KPIs will improve and by how much>",
+        "success_metric": "<specific measurable KPI with target numbers>",
+        "timeline": "<X-Y months with milestones>",
+        "estimated_cost": "<₹X-Y lakh range>",
+        "implementation_steps": [
+          "<Step 1: Specific actionable step>",
+          "<Step 2: Specific actionable step>",
+          "<Step 3: Specific actionable step>",
+          "<Step 4: Specific actionable step>"
+        ]
       }
     ],
-    "medium_term": [],
-    "long_term": []
+    "medium_term": [
+      {
+        "title": "<recommendation title>",
+        "priority": "HIGH",
+        "current_state": "<detailed current state>",
+        "root_cause": "<underlying cause>",
+        "recommended_action": "<detailed action plan - minimum 3-4 sentences>",
+        "expected_outcome": "<quantified outcomes>",
+        "success_metric": "<specific KPI with targets>",
+        "timeline": "<6-18 months with key milestones>",
+        "estimated_cost": "<₹X Cr range>",
+        "implementation_steps": ["<step1>", "<step2>", "<step3>"]
+      }
+    ],
+    "long_term": [
+      {
+        "title": "<recommendation title>",
+        "priority": "MEDIUM",
+        "current_state": "<detailed current state>",
+        "root_cause": "<strategic gap>",
+        "recommended_action": "<transformational initiative - minimum 3-4 sentences>",
+        "expected_outcome": "<long-term impact>",
+        "success_metric": "<strategic KPIs>",
+        "timeline": "<18-36 months with phases>",
+        "estimated_cost": "<₹X Cr range>",
+        "implementation_steps": ["<phase1>", "<phase2>", "<phase3>"]
+      }
+    ]
   },
   
   "risks": [
