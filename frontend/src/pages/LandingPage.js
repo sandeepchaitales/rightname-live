@@ -175,6 +175,7 @@ const LandingPage = () => {
   const { user, loading: authLoading, loginWithGoogle, logout, openAuthModal } = useAuth();
   const [loading, setLoading] = useState(false);
   const [openFAQ, setOpenFAQ] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     brand_names: '',
     industry: '',
