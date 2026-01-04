@@ -2132,6 +2132,11 @@ async def brand_audit(request: BrandAuditRequest):
             else:
                 content = str(response)
             
+            # Check for empty response
+            if not content or content.strip() == "":
+                logging.warning(f"Brand Audit: {provider}/{model} returned empty response")
+                raise ValueError("Empty response from LLM")
+            
             # Extract JSON
             if "```json" in content:
                 content = content.split("```json")[1].split("```")[0]
@@ -2144,13 +2149,24 @@ async def brand_audit(request: BrandAuditRequest):
             
             content = content.strip()
             
+            # Check again after extraction
+            if not content:
+                logging.warning(f"Brand Audit: {provider}/{model} JSON extraction failed - empty content")
+                raise ValueError("JSON extraction failed - empty content")
+            
             # Parse JSON
             try:
                 data = json.loads(content)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as je:
+                logging.warning(f"Brand Audit: JSON decode failed, attempting repair. Content length: {len(content)}")
                 from json_repair import repair_json
                 content = repair_json(content)
                 data = json.loads(content)
+            
+            # Verify we got valid data
+            if not data or not isinstance(data, dict):
+                logging.warning(f"Brand Audit: {provider}/{model} returned invalid data structure")
+                raise ValueError("Invalid data structure from LLM")
             
             logging.info(f"Brand Audit: {provider}/{model} succeeded!")
             break  # Success, exit the retry loop
