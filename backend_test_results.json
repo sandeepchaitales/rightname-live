@@ -1,28 +1,28 @@
 {
-  "test_focus": "Brand Audit API Test - Claude Timeout Fix",
-  "description": "Re-test the Brand Audit API /api/brand-audit after fixing the Claude timeout issue",
-  "fix_details": {
-    "issue": "Claude model was hanging/timing out in fallback chain",
-    "solution": "Removed Claude from fallback chain, now using OpenAI only: gpt-4o-mini \u2192 gpt-4o \u2192 gpt-4.1",
-    "timeout_fix": "Added 120-second timeout per model to prevent hanging"
+  "test_focus": "Brand Audit API Test - Bikanervala Final Test",
+  "description": "Final test of Brand Audit API /api/brand-audit with improved error handling",
+  "improvement_details": {
+    "issue": "Previous issues with empty responses and model stability",
+    "solution": "Added empty response checks, changed model priority: gpt-4o first (more stable), then gpt-4o-mini, then gpt-4.1",
+    "timeout": "Allow 180 seconds for processing"
   },
   "test_case": {
-    "brand_name": "Tea Villa",
-    "brand_website": "https://teavilla.in",
+    "brand_name": "Bikanervala",
+    "brand_website": "https://bfresco.com",
     "category": "Food & Beverage",
     "geography": "India",
-    "competitor_1": "Chai Point",
-    "competitor_2": "Chaayos"
+    "competitor_1": "Haldiram",
+    "competitor_2": "Bikano"
   },
   "verification_points": [
-    "API returns successful response (200 OK, not timeout)",
+    "API returns successful response (200 OK)",
     "Response contains report_id (string)",
     "Response contains overall_score (number 0-100)",
-    "Response contains verdict (STRONG/MODERATE/WEAK/CRITICAL)",
-    "Response contains executive_summary (text)",
-    "Response contains dimensions (array of 8 brand dimensions)",
-    "Processing completes within 180 seconds total",
-    "Backend logs show OpenAI model usage without Claude hanging"
+    "Response contains verdict (valid verdict string)",
+    "Response contains executive_summary (substantial text)",
+    "Response contains dimensions (array with proper structure)",
+    "Processing completes within 180 seconds",
+    "Valid JSON response = SUCCESS"
   ],
   "summary": {
     "tests_run": 2,
@@ -35,14 +35,14 @@
       "test": "API Health Check",
       "success": true,
       "details": "Status: 200, Response: {\"message\":\"RightName API is running\"}",
-      "timestamp": "2026-01-04T06:27:44.259176"
+      "timestamp": "2026-01-04T06:54:22.718260"
     },
     {
-      "test": "Brand Audit - Tea Villa Timeout",
+      "test": "Brand Audit - Bikanervala Timeout",
       "success": false,
-      "details": "Request timed out after 180 seconds - Claude fix may not be working",
-      "timestamp": "2026-01-04T06:30:44.387747"
+      "details": "Request timed out after 180 seconds",
+      "timestamp": "2026-01-04T06:57:22.844450"
     }
   ],
-  "timestamp": "2026-01-04T06:30:44.387898"
+  "timestamp": "2026-01-04T06:57:22.844606"
 }
