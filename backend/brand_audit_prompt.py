@@ -370,13 +370,17 @@ QUALITY REQUIREMENTS
 1. **SWOT**: Minimum 10 items per category with sources
 2. **Dimensions**: All 8 scored with evidence
 3. **Competitors**: At least 3-5 detailed profiles
-4. **Recommendations**: 3-5 immediate, 2-3 medium, 1-2 long-term
+4. **Recommendations**: 
+   - 3-5 IMMEDIATE (0-6 months) - each with 4+ implementation steps
+   - 2-3 MEDIUM-TERM (6-18 months) - each with detailed action plan
+   - 1-2 LONG-TERM (18-36 months) - transformational initiatives
+   - EVERY recommendation MUST have: current_state, root_cause, recommended_action (3+ sentences), expected_outcome (quantified), success_metric (specific KPI), timeline, estimated_cost, implementation_steps (3-4 steps)
 5. **Risks**: Minimum 7-10 specific risks
 6. **KPIs**: At least 8-10 benchmarked metrics
 7. **Sources**: Reference at least 20+ sources
 8. **Data**: Include specific ₹ values, % growth, counts wherever possible
 
-BE THOROUGH. BE CRITICAL. BE SPECIFIC.
+BE THOROUGH. BE CRITICAL. BE SPECIFIC. RECOMMENDATIONS MUST BE ACTIONABLE WITH CLEAR STEPS.
 """
 
 
