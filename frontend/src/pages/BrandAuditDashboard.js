@@ -439,16 +439,17 @@ const BrandAuditDashboard = () => {
                     
                     {/* Strategic Recommendations */}
                     <section className="print-break">
-                        <SectionHeader icon={Zap} title="Strategic Recommendations" subtitle="Actionable roadmap" color="emerald" />
+                        <SectionHeader icon={Zap} title="Strategic Recommendations" subtitle="Detailed actionable roadmap with implementation steps" color="emerald" />
                         
                         {/* Immediate (0-6 months) */}
                         {data.immediate_recommendations?.length > 0 && (
-                            <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Clock className="w-4 h-4 text-emerald-600" />
-                                    <h3 className="font-bold text-slate-800">Immediate (0-6 months)</h3>
+                            <div className="mb-8">
+                                <div className="flex items-center gap-2 mb-4 p-3 bg-emerald-50 rounded-lg">
+                                    <Clock className="w-5 h-5 text-emerald-600" />
+                                    <h3 className="font-bold text-emerald-800 text-lg">Immediate Actions (0-6 months)</h3>
+                                    <Badge className="bg-emerald-100 text-emerald-700 ml-auto">{data.immediate_recommendations.length} Actions</Badge>
                                 </div>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {data.immediate_recommendations.map((rec, i) => (
                                         <RecommendationCard key={i} rec={rec} index={i} timeline="immediate" />
                                     ))}
@@ -458,12 +459,13 @@ const BrandAuditDashboard = () => {
                         
                         {/* Medium-term (6-18 months) */}
                         {data.medium_term_recommendations?.length > 0 && (
-                            <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Calendar className="w-4 h-4 text-amber-600" />
-                                    <h3 className="font-bold text-slate-800">Medium-Term (6-18 months)</h3>
+                            <div className="mb-8">
+                                <div className="flex items-center gap-2 mb-4 p-3 bg-amber-50 rounded-lg">
+                                    <Calendar className="w-5 h-5 text-amber-600" />
+                                    <h3 className="font-bold text-amber-800 text-lg">Medium-Term Initiatives (6-18 months)</h3>
+                                    <Badge className="bg-amber-100 text-amber-700 ml-auto">{data.medium_term_recommendations.length} Initiatives</Badge>
                                 </div>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {data.medium_term_recommendations.map((rec, i) => (
                                         <RecommendationCard key={i} rec={rec} index={i} timeline="medium" />
                                     ))}
@@ -473,16 +475,24 @@ const BrandAuditDashboard = () => {
                         
                         {/* Long-term (18-36 months) */}
                         {data.long_term_recommendations?.length > 0 && (
-                            <div className="mb-6">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <TrendingUp className="w-4 h-4 text-violet-600" />
-                                    <h3 className="font-bold text-slate-800">Long-Term (18-36 months)</h3>
+                            <div className="mb-8">
+                                <div className="flex items-center gap-2 mb-4 p-3 bg-violet-50 rounded-lg">
+                                    <TrendingUp className="w-5 h-5 text-violet-600" />
+                                    <h3 className="font-bold text-violet-800 text-lg">Long-Term Transformation (18-36 months)</h3>
+                                    <Badge className="bg-violet-100 text-violet-700 ml-auto">{data.long_term_recommendations.length} Strategies</Badge>
                                 </div>
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {data.long_term_recommendations.map((rec, i) => (
                                         <RecommendationCard key={i} rec={rec} index={i} timeline="long" />
                                     ))}
                                 </div>
+                            </div>
+                        )}
+                        
+                        {/* Empty state */}
+                        {(!data.immediate_recommendations?.length && !data.medium_term_recommendations?.length && !data.long_term_recommendations?.length) && (
+                            <div className="p-6 bg-slate-50 rounded-xl text-center">
+                                <p className="text-slate-500">No strategic recommendations generated for this brand.</p>
                             </div>
                         )}
                     </section>
