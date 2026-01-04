@@ -4004,10 +4004,10 @@ class BrandEvaluationTester:
 def main():
     tester = BrandEvaluationTester()
     
-    # Run QuickTest smoke test as per review request
-    print("🔍 QUICKTEST SMOKE TEST: Testing RIGHTNAME brand evaluation API")
+    # Run Brand Audit test as per review request
+    print("🔍 BRAND AUDIT API TEST: Testing /api/brand-audit endpoint")
     print("=" * 80)
-    print("🎯 TESTING: QuickTest brand evaluation with schema fix verification")
+    print("🎯 TESTING: Brand Audit API with Haldiram test case")
     print("=" * 80)
     
     # Test API health first
@@ -4015,15 +4015,15 @@ def main():
         print("❌ API health check failed, stopping tests")
         return 1
     
-    # PRIORITY: Run QuickTest smoke test as per review request
-    print("\n🔍 QUICKTEST SMOKE TEST:")
-    print("Testing brand evaluation API with QuickTest payload...")
+    # PRIORITY: Run Brand Audit test as per review request
+    print("\n🔍 BRAND AUDIT TEST:")
+    print("Testing Brand Audit API with Haldiram (famous Indian food brand)...")
     
     # Run the specific test requested
-    success = tester.test_quicktest_smoke_test()
+    success = tester.test_brand_audit_haldiram()
     
     # Print summary
-    print(f"\n📊 QuickTest Smoke Test Summary:")
+    print(f"\n📊 Brand Audit Test Summary:")
     print(f"Tests Run: {tester.tests_run}")
     print(f"Tests Passed: {tester.tests_passed}")
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run)*100:.1f}%")
@@ -4031,20 +4031,24 @@ def main():
     # Save detailed results
     with open('/app/backend_test_results.json', 'w') as f:
         json.dump({
-            "test_focus": "QuickTest Smoke Test for RIGHTNAME API",
-            "description": "Quick smoke test to verify RIGHTNAME brand evaluation API is working after schema fix",
+            "test_focus": "Brand Audit API Test",
+            "description": "Test the Brand Audit API endpoint /api/brand-audit which was failing with 502 errors",
             "test_case": {
-                "brand_names": ["QuickTest"],
-                "category": "Technology", 
-                "positioning": "Premium",
-                "market_scope": "Single Country",
-                "countries": ["USA"]
+                "brand_name": "Haldiram",
+                "brand_website": "https://haldirams.com",
+                "category": "Food & Beverage",
+                "geography": "India",
+                "competitor_1": "Bikaji",
+                "competitor_2": "Balaji"
             },
             "verification_points": [
-                "API returns successful response (200 OK)",
-                "Response contains brand_scores with namescore and verdict", 
-                "No validation errors (especially for score_impact field)",
-                "Legal precedents contain USA cases (like Polaroid Corp.)"
+                "API returns successful response (200 OK, not 502)",
+                "Response contains report_id (string)",
+                "Response contains overall_score (number 0-100)",
+                "Response contains verdict (STRONG/MODERATE/WEAK/CRITICAL)",
+                "Response contains executive_summary (text)",
+                "Response contains dimensions (array of 8 brand dimensions)",
+                "Model fallback working: gpt-4o-mini → claude-sonnet-4-20250514 → gpt-4o"
             ],
             "summary": {
                 "tests_run": tester.tests_run,
