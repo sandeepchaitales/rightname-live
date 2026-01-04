@@ -2280,7 +2280,7 @@ async def brand_audit(request: BrandAuditRequest):
         key_trends=market_data_raw.get('key_trends', [])
     ) if market_data_raw else None
     
-    # Build response
+    # Build response with new elite consulting fields
     response_data = BrandAuditResponse(
         report_id=report_id,
         brand_name=request.brand_name,
@@ -2288,10 +2288,20 @@ async def brand_audit(request: BrandAuditRequest):
         category=request.category,
         geography=request.geography,
         overall_score=float(data.get('overall_score', 0)),
+        rating=data.get('rating'),
         verdict=data.get('verdict', 'MODERATE'),
         executive_summary=data.get('executive_summary', ''),
         investment_thesis=data.get('investment_thesis'),
         brand_overview=data.get('brand_overview', {}),
+        # NEW: Elite consulting sections
+        market_landscape=data.get('market_landscape'),
+        brand_equity=data.get('brand_equity'),
+        financial_performance=data.get('financial_performance'),
+        consumer_perception=data.get('consumer_perception'),
+        competitive_positioning=data.get('competitive_positioning'),
+        valuation=data.get('valuation'),
+        conclusion=data.get('conclusion'),
+        # Existing fields
         dimensions=dimensions,
         competitors=competitors,
         competitive_matrix=competitive_matrix,
