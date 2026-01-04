@@ -1426,6 +1426,135 @@ class BrandEvaluationTester:
             self.log_test("Brand Audit - Haldiram Exception", False, str(e))
             return False
 
+    def test_brand_audit_bikanervala_final(self):
+        """Test Brand Audit API with Bikanervala test case as requested in review"""
+        payload = {
+            "brand_name": "Bikanervala",
+            "brand_website": "https://bfresco.com",
+            "category": "Food & Beverage",
+            "geography": "India",
+            "competitor_1": "Haldiram",
+            "competitor_2": "Bikano"
+        }
+        
+        try:
+            print(f"\n🔍 FINAL BRAND AUDIT TEST: Testing with Bikanervala as requested...")
+            print(f"Payload: {json.dumps(payload, indent=2)}")
+            print(f"Expected: Status 200 with report_id, overall_score, verdict, executive_summary, dimensions")
+            print(f"Timeout: 180 seconds allowed")
+            print(f"Success Criteria: Valid JSON response = SUCCESS")
+            
+            start_time = time.time()
+            response = requests.post(
+                f"{self.api_url}/brand-audit", 
+                json=payload, 
+                headers={'Content-Type': 'application/json'},
+                timeout=180  # Allow 180 seconds as requested
+            )
+            
+            processing_time = time.time() - start_time
+            print(f"Response Status: {response.status_code}")
+            print(f"Processing Time: {processing_time:.2f} seconds")
+            
+            # Test 1: Check for 200 OK status
+            if response.status_code != 200:
+                error_msg = f"HTTP {response.status_code}: {response.text[:500]}"
+                if response.status_code in [502, 500, 503]:
+                    self.log_test("Brand Audit - Bikanervala Server Error", False, f"Server error (expected 200 OK): {error_msg}")
+                elif response.status_code == 408:
+                    self.log_test("Brand Audit - Bikanervala Timeout", False, f"Request timeout: {error_msg}")
+                else:
+                    self.log_test("Brand Audit - Bikanervala HTTP Error", False, error_msg)
+                return False
+            
+            try:
+                data = response.json()
+                print(f"✅ Response received successfully, checking structure...")
+                
+                # Test 2: Check required fields as specified in review request
+                required_fields = ["report_id", "overall_score", "verdict", "executive_summary", "dimensions"]
+                missing_fields = [field for field in required_fields if field not in data]
+                
+                if missing_fields:
+                    self.log_test("Brand Audit - Bikanervala Required Fields", False, f"Missing required fields: {missing_fields}")
+                    return False
+                
+                # Test 3: Validate report_id
+                report_id = data.get("report_id")
+                if not isinstance(report_id, str) or len(report_id) == 0:
+                    self.log_test("Brand Audit - Bikanervala Report ID", False, f"Invalid report_id: {report_id}")
+                    return False
+                
+                # Test 4: Validate overall_score (0-100)
+                overall_score = data.get("overall_score")
+                if not isinstance(overall_score, (int, float)) or not (0 <= overall_score <= 100):
+                    self.log_test("Brand Audit - Bikanervala Overall Score", False, f"Invalid overall_score: {overall_score} (should be 0-100)")
+                    return False
+                
+                # Test 5: Validate verdict
+                verdict = data.get("verdict", "")
+                valid_verdicts = ["STRONG", "MODERATE", "WEAK", "CRITICAL", "EXCELLENT", "GOOD", "POOR"]
+                if verdict not in valid_verdicts:
+                    self.log_test("Brand Audit - Bikanervala Verdict", False, f"Invalid verdict: {verdict} (should be one of {valid_verdicts})")
+                    return False
+                
+                # Test 6: Validate executive_summary
+                executive_summary = data.get("executive_summary", "")
+                if not isinstance(executive_summary, str) or len(executive_summary) < 50:
+                    self.log_test("Brand Audit - Bikanervala Executive Summary", False, f"Invalid executive_summary: {len(executive_summary)} chars (should be substantial)")
+                    return False
+                
+                # Test 7: Validate dimensions array
+                dimensions = data.get("dimensions", [])
+                if not isinstance(dimensions, list) or len(dimensions) == 0:
+                    self.log_test("Brand Audit - Bikanervala Dimensions", False, f"Invalid dimensions: {type(dimensions)} with {len(dimensions) if isinstance(dimensions, list) else 'N/A'} items")
+                    return False
+                
+                # Test 8: Check dimensions structure
+                for i, dimension in enumerate(dimensions):
+                    if not isinstance(dimension, dict):
+                        self.log_test("Brand Audit - Bikanervala Dimension Structure", False, f"Dimension {i} is not a dict: {type(dimension)}")
+                        return False
+                    
+                    required_dim_fields = ["name", "score"]
+                    missing_dim_fields = [field for field in required_dim_fields if field not in dimension]
+                    if missing_dim_fields:
+                        self.log_test("Brand Audit - Bikanervala Dimension Fields", False, f"Dimension {i} missing fields: {missing_dim_fields}")
+                        return False
+                
+                # Test 9: Check for schema validation issues (sources[].id should be string)
+                response_text = json.dumps(data)
+                if "sources" in response_text:
+                    print("✅ Sources field found in response")
+                    # Check if there are any validation errors in the response
+                    if "validation" in response_text.lower() and "error" in response_text.lower():
+                        self.log_test("Brand Audit - Bikanervala Schema Validation", False, "Schema validation errors detected in response")
+                        return False
+                
+                print(f"✅ Bikanervala Brand Audit completed successfully:")
+                print(f"   - Report ID: {report_id}")
+                print(f"   - Overall Score: {overall_score}/100")
+                print(f"   - Verdict: {verdict}")
+                print(f"   - Executive Summary: {len(executive_summary)} characters")
+                print(f"   - Dimensions: {len(dimensions)} items")
+                print(f"   - Processing Time: {processing_time:.2f} seconds")
+                
+                self.log_test("Brand Audit - Bikanervala Final Test", True, 
+                            f"SUCCESS: Valid JSON response received. Report ID: {report_id}, Score: {overall_score}/100, Verdict: {verdict}, Time: {processing_time:.2f}s")
+                return True
+                
+            except json.JSONDecodeError as e:
+                self.log_test("Brand Audit - Bikanervala JSON Parse", False, f"Invalid JSON response: {str(e)}")
+                print(f"❌ Response was not valid JSON: {response.text[:500]}...")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.log_test("Brand Audit - Bikanervala Timeout", False, "Request timed out after 180 seconds")
+            return False
+        except Exception as e:
+            self.log_test("Brand Audit - Bikanervala Exception", False, str(e))
+            return False
+
     def test_fallback_model_feature(self):
         """Test the new fallback model feature with FallbackTest brand"""
         payload = {
