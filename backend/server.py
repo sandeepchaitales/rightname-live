@@ -2342,12 +2342,20 @@ async def brand_audit(request: BrandAuditRequest):
     # Parse competitors
     competitors = []
     for comp in data.get('competitors', []):
+        # Handle rating - convert to float or None if invalid
+        rating_val = comp.get('rating')
+        if isinstance(rating_val, str):
+            try:
+                rating_val = float(rating_val)
+            except (ValueError, TypeError):
+                rating_val = None
+        
         competitors.append(CompetitorData(
             name=comp.get('name', ''),
             website=comp.get('website', ''),
             founded=comp.get('founded'),
             outlets=comp.get('outlets'),
-            rating=comp.get('rating'),
+            rating=rating_val,
             social_followers=comp.get('social_followers'),
             key_strength=comp.get('key_strength'),
             key_weakness=comp.get('key_weakness')
