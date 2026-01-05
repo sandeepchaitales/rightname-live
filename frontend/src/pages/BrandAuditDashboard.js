@@ -302,6 +302,261 @@ const QuickDimensionsGrid = ({ dimensions }) => (
     </div>
 );
 
+// ============ CUSTOMER PERCEPTION & BRAND HEALTH SECTION ============
+const CustomerPerceptionSection = ({ data }) => {
+    if (!data) return null;
+    
+    const { 
+        overall_sentiment, 
+        sentiment_score, 
+        platform_ratings = [], 
+        average_rating,
+        total_reviews,
+        rating_vs_competitors,
+        competitor_ratings = {},
+        positive_themes = [],
+        negative_themes = [],
+        key_strengths = [],
+        key_concerns = [],
+        analysis
+    } = data;
+    
+    const sentimentColors = {
+        'POSITIVE': 'bg-emerald-100 text-emerald-700',
+        'NEUTRAL': 'bg-amber-100 text-amber-700',
+        'NEGATIVE': 'bg-red-100 text-red-700'
+    };
+    
+    const platformIcons = {
+        'Google Maps': '🗺️',
+        'Google': '🔍',
+        'Justdial': '📞',
+        'Zomato': '🍽️',
+        'Swiggy': '🛵',
+        'Yelp': '⭐',
+        'TripAdvisor': '✈️',
+        'Trustpilot': '🛡️',
+        'Facebook': '👍',
+        'MouthShut': '🗣️'
+    };
+    
+    const getIcon = (platform) => platformIcons[platform] || '📊';
+    
+    const getRatingColor = (rating) => {
+        if (rating >= 4.5) return 'text-emerald-600 bg-emerald-50';
+        if (rating >= 4.0) return 'text-green-600 bg-green-50';
+        if (rating >= 3.5) return 'text-amber-600 bg-amber-50';
+        return 'text-red-600 bg-red-50';
+    };
+    
+    return (
+        <section className="print-break">
+            <SectionHeader 
+                icon={MessageSquare} 
+                title="Customer Perception & Brand Health" 
+                subtitle="Platform ratings, sentiment analysis, and customer feedback themes" 
+                color="pink" 
+            />
+            
+            {/* Overall Metrics Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {average_rating && (
+                    <Card className="text-center">
+                        <div className="text-3xl mb-1">⭐</div>
+                        <div className="text-3xl font-black text-amber-600">{average_rating.toFixed(1)}</div>
+                        <div className="text-xs text-slate-500">Average Rating</div>
+                    </Card>
+                )}
+                {total_reviews && (
+                    <Card className="text-center">
+                        <div className="text-3xl mb-1">💬</div>
+                        <div className="text-2xl font-black text-blue-600">{total_reviews}</div>
+                        <div className="text-xs text-slate-500">Total Reviews</div>
+                    </Card>
+                )}
+                {sentiment_score !== null && sentiment_score !== undefined && (
+                    <Card className="text-center">
+                        <div className="text-3xl mb-1">{sentiment_score >= 70 ? '😊' : sentiment_score >= 40 ? '😐' : '😟'}</div>
+                        <div className="text-3xl font-black text-violet-600">{sentiment_score}</div>
+                        <div className="text-xs text-slate-500">Sentiment Score</div>
+                    </Card>
+                )}
+                {rating_vs_competitors && (
+                    <Card className="text-center">
+                        <div className="text-3xl mb-1">{rating_vs_competitors.toLowerCase().includes('above') ? '📈' : rating_vs_competitors.toLowerCase().includes('below') ? '📉' : '➡️'}</div>
+                        <div className={`text-sm font-bold px-2 py-1 rounded-full inline-block ${
+                            rating_vs_competitors.toLowerCase().includes('above') ? 'bg-emerald-100 text-emerald-700' :
+                            rating_vs_competitors.toLowerCase().includes('below') ? 'bg-red-100 text-red-700' :
+                            'bg-amber-100 text-amber-700'
+                        }`}>
+                            {rating_vs_competitors}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">vs Market</div>
+                    </Card>
+                )}
+            </div>
+            
+            {/* Platform Ratings Grid */}
+            {platform_ratings.length > 0 && (
+                <div className="mb-6">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <Star className="w-4 h-4 text-amber-500" />
+                        Platform Ratings
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {platform_ratings.map((pr, i) => (
+                            <div key={i} className={`p-4 rounded-xl border ${getRatingColor(pr.rating)} border-slate-200`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xl">{getIcon(pr.platform)}</span>
+                                    {pr.url && (
+                                        <a href={pr.url} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-blue-500">
+                                            <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                    )}
+                                </div>
+                                <div className="font-bold text-sm text-slate-800">{pr.platform}</div>
+                                <div className="flex items-center gap-1 mt-1">
+                                    <span className="text-2xl font-black">{pr.rating?.toFixed(1) || 'N/A'}</span>
+                                    <span className="text-xs text-slate-500">/5</span>
+                                </div>
+                                {pr.review_count && (
+                                    <div className="text-xs text-slate-500 mt-1">{pr.review_count}</div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
+            {/* Competitor Rating Comparison */}
+            {Object.keys(competitor_ratings).length > 0 && (
+                <div className="mb-6 p-4 bg-slate-50 rounded-xl">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <Target className="w-4 h-4 text-violet-500" />
+                        Competitor Rating Comparison
+                    </h3>
+                    <div className="flex flex-wrap gap-4">
+                        {Object.entries(competitor_ratings).map(([name, rating], i) => (
+                            <div key={i} className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border">
+                                <span className="font-medium text-slate-700">{name}</span>
+                                <Badge className={getRatingColor(rating)}>{rating?.toFixed(1) || 'N/A'}/5</Badge>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            
+            {/* Positive & Negative Themes */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Positive Themes */}
+                {positive_themes.length > 0 && (
+                    <Card className="border-l-4 border-l-emerald-500">
+                        <h3 className="font-bold text-emerald-700 mb-4 flex items-center gap-2">
+                            <ThumbsUp className="w-5 h-5" />
+                            Positive Feedback Themes
+                            <Badge className="bg-emerald-100 text-emerald-700">{positive_themes.length}</Badge>
+                        </h3>
+                        <div className="space-y-4">
+                            {positive_themes.slice(0, 5).map((theme, i) => (
+                                <div key={i} className="p-3 bg-emerald-50 rounded-lg">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-bold text-emerald-800">{theme.theme}</span>
+                                        <Badge variant="outline" className="text-xs">
+                                            {theme.frequency || 'MEDIUM'}
+                                        </Badge>
+                                    </div>
+                                    {theme.quote && (
+                                        <div className="flex items-start gap-2 mt-2">
+                                            <Quote className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                                            <p className="text-sm text-slate-600 italic">"{theme.quote}"</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                )}
+                
+                {/* Negative Themes */}
+                {negative_themes.length > 0 && (
+                    <Card className="border-l-4 border-l-red-500">
+                        <h3 className="font-bold text-red-700 mb-4 flex items-center gap-2">
+                            <ThumbsDown className="w-5 h-5" />
+                            Areas of Concern
+                            <Badge className="bg-red-100 text-red-700">{negative_themes.length}</Badge>
+                        </h3>
+                        <div className="space-y-4">
+                            {negative_themes.slice(0, 5).map((theme, i) => (
+                                <div key={i} className="p-3 bg-red-50 rounded-lg">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="font-bold text-red-800">{theme.theme}</span>
+                                        <Badge variant="outline" className="text-xs">
+                                            {theme.frequency || 'MEDIUM'}
+                                        </Badge>
+                                    </div>
+                                    {theme.quote && (
+                                        <div className="flex items-start gap-2 mt-2">
+                                            <Quote className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                                            <p className="text-sm text-slate-600 italic">"{theme.quote}"</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+                )}
+            </div>
+            
+            {/* Key Insights */}
+            {(key_strengths.length > 0 || key_concerns.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {key_strengths.length > 0 && (
+                        <div className="p-4 bg-emerald-50 rounded-xl">
+                            <h4 className="font-bold text-emerald-700 mb-2 flex items-center gap-2">
+                                <CheckCircle2 className="w-4 h-4" />
+                                Customer-Validated Strengths
+                            </h4>
+                            <ul className="space-y-1">
+                                {key_strengths.map((s, i) => (
+                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                        <span className="text-emerald-500">✓</span> {s}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    {key_concerns.length > 0 && (
+                        <div className="p-4 bg-red-50 rounded-xl">
+                            <h4 className="font-bold text-red-700 mb-2 flex items-center gap-2">
+                                <AlertTriangle className="w-4 h-4" />
+                                Customer Pain Points
+                            </h4>
+                            <ul className="space-y-1">
+                                {key_concerns.map((c, i) => (
+                                    <li key={i} className="text-sm text-slate-700 flex items-start gap-2">
+                                        <span className="text-red-500">!</span> {c}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            )}
+            
+            {/* Analysis Narrative */}
+            {analysis && (
+                <Card className="bg-gradient-to-r from-pink-50 to-violet-50">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <Activity className="w-4 h-4 text-pink-500" />
+                        Customer Perception Analysis
+                    </h3>
+                    <p className="text-sm text-slate-700 leading-relaxed">{analysis}</p>
+                </Card>
+            )}
+        </section>
+    );
+};
+
 // SWOT Card
 const SWOTCard = ({ type, items, icon: Icon, bgColor, textColor }) => (
     <div className={`${bgColor} rounded-xl p-4`}>
