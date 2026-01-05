@@ -2061,6 +2061,36 @@ async def gather_brand_audit_research(brand_name: str, brand_website: str, compe
         phase4_results.append(f"Query: {q}\n{result}")
     research_data['phase4_data'] = "\n\n---\n\n".join(phase4_results)
     
+    # PHASE 5: Customer Perception & Platform Ratings
+    logging.info(f"Brand Audit Phase 5: Customer perception research for {brand_name}")
+    
+    # Geography-specific rating platforms
+    rating_platforms = {
+        "India": ["Google Maps", "Justdial", "Zomato", "Swiggy", "MouthShut"],
+        "USA": ["Google Maps", "Yelp", "TripAdvisor", "BBB"],
+        "UK": ["Google Maps", "TripAdvisor", "Trustpilot"],
+        "Global": ["Google Maps", "Facebook", "Trustpilot"]
+    }
+    
+    geo_platforms = rating_platforms.get(geography, rating_platforms["Global"])
+    
+    phase5_queries = [
+        f"{brand_name} Google Maps rating reviews stars",
+        f"{brand_name} {geo_platforms[1] if len(geo_platforms) > 1 else 'reviews'} rating customer reviews {geography}",
+        f"{brand_name} customer feedback positive negative reviews {year_range}",
+        f"{brand_name} vs {comp1_name} vs {comp2_name} ratings comparison {geography}",
+        f'"{brand_name}" "rating" OR "stars" OR "reviews" site:google.com OR site:justdial.com OR site:zomato.com'
+    ]
+    all_queries.extend(phase5_queries)
+    
+    phase5_results = []
+    for q in phase5_queries:
+        result = await perform_web_search(q)
+        phase5_results.append(f"Query: {q}\n{result}")
+    research_data['phase5_data'] = "\n\n---\n\n".join(phase5_results)
+    
+    # Store geography-specific platforms info
+    research_data['rating_platforms'] = geo_platforms
     research_data['all_queries'] = all_queries
     
     return research_data
