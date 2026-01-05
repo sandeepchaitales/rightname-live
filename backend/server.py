@@ -2081,12 +2081,13 @@ async def gather_brand_audit_research(brand_name: str, brand_website: str, compe
         phase3_results.append(f"Query: {q}\n{result}")
     research_data['phase3_data'] = "\n\n---\n\n".join(phase3_results)
     
-    # PHASE 4: Deep Validation & Strategic Context
+    # PHASE 4: Deep Validation & Key Facts
     logging.info(f"Brand Audit Phase 4: Deep validation for {brand_name}")
     phase4_queries = [
-        f"{brand_name} founder background story",
-        f"{brand_name} Google reviews Justdial ratings",
-        f"{comp1_name} vs {comp2_name} vs {brand_name} {category} analysis"
+        f'"{brand_name}" founded year founder CEO owner',
+        f'"{brand_name}" total stores outlets locations count {year_range}',
+        f'"{brand_name}" states cities presence expansion',
+        f"{brand_name} franchise model investment cost"
     ]
     all_queries.extend(phase4_queries)
     
