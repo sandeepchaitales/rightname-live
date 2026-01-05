@@ -2112,10 +2112,12 @@ async def gather_brand_audit_research(brand_name: str, brand_website: str, compe
     
     phase5_queries = [
         f"{brand_name} Google Maps rating reviews stars",
-        f"{brand_name} {geo_platforms[1] if len(geo_platforms) > 1 else 'reviews'} rating customer reviews {geography}",
-        f"{brand_name} customer feedback positive negative reviews {year_range}",
-        f"{brand_name} vs {comp1_name} vs {comp2_name} ratings comparison {geography}",
-        f'"{brand_name}" "rating" OR "stars" OR "reviews" site:google.com OR site:justdial.com OR site:zomato.com'
+    phase5_queries = [
+        f'"{brand_name}" Google Maps rating stars reviews',
+        f'"{brand_name}" {geo_platforms[1] if len(geo_platforms) > 1 else "Justdial"} rating reviews',
+        f'"{brand_name}" Zomato rating reviews {geography}' if geography == "India" else f'"{brand_name}" Yelp rating reviews',
+        f'"{brand_name}" customer reviews positive negative feedback {year_range}',
+        f'{brand_name} {comp1_name} {comp2_name} rating comparison'
     ]
     all_queries.extend(phase5_queries)
     
