@@ -25,7 +25,12 @@ import {
     Calendar,
     Star,
     Zap,
-    Activity
+    Activity,
+    MessageSquare,
+    ThumbsUp,
+    ThumbsDown,
+    Quote,
+    ExternalLink
 } from 'lucide-react';
 
 // Logo URL
