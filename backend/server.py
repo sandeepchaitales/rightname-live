@@ -1971,35 +1971,25 @@ async def login_email(request: EmailLoginRequest, response: Response):
 
 async def perform_web_search(query: str) -> str:
     """Perform web search using multiple methods for reliability"""
-    import httpx
+    import aiohttp
     from bs4 import BeautifulSoup
     
     results = []
     
-    # Method 1: Try DuckDuckGo first
+    # Method 1: Try aiohttp Bing search (more reliable)
     try:
-        from duckduckgo_search import DDGS
-        with DDGS() as ddgs:
-            ddg_results = list(ddgs.text(query, max_results=5))
-            if ddg_results:
-                for i, r in enumerate(ddg_results, 1):
-                    results.append(f"[{i}] {r.get('title', 'No title')}\n{r.get('body', 'No description')}\nURL: {r.get('href', 'No URL')}")
-    except Exception as e:
-        logging.warning(f"DuckDuckGo search failed: {e}")
-    
-    # Method 2: If DuckDuckGo fails, try Bing scraping
-    if not results:
-        try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                encoded_query = query.replace(' ', '+')
-                response = await client.get(
-                    f"https://www.bing.com/search?q={encoded_query}",
-                    headers={
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                    }
-                )
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
+        search_url = f"https://www.bing.com/search?q={query.replace(' ', '+')}"
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+            }
+            async with session.get(search_url, headers=headers, timeout=aiohttp.ClientTimeout(total=15)) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    
                     # Extract search results
                     for i, result in enumerate(soup.select('.b_algo')[:5], 1):
                         title_elem = result.select_one('h2')
@@ -2008,17 +1998,30 @@ async def perform_web_search(query: str) -> str:
                         
                         title = title_elem.get_text(strip=True) if title_elem else 'No title'
                         desc = desc_elem.get_text(strip=True) if desc_elem else 'No description'
-                        url = link_elem.get('href', 'No URL') if link_elem else 'No URL'
+                        url = link_elem.get('href', '') if link_elem else ''
                         
                         results.append(f"[{i}] {title}\n{desc}\nURL: {url}")
-                        
+                    
                     logging.info(f"Bing search returned {len(results)} results for: {query[:50]}...")
+    except Exception as e:
+        logging.warning(f"Bing search failed: {e}")
+    
+    # Method 2: Fallback to DuckDuckGo
+    if not results:
+        try:
+            from duckduckgo_search import DDGS
+            with DDGS() as ddgs:
+                ddg_results = list(ddgs.text(query, max_results=5))
+                if ddg_results:
+                    for i, r in enumerate(ddg_results, 1):
+                        results.append(f"[{i}] {r.get('title', 'No title')}\n{r.get('body', 'No description')}\nURL: {r.get('href', 'No URL')}")
+                    logging.info(f"DuckDuckGo fallback returned {len(results)} results")
         except Exception as e:
-            logging.warning(f"Bing search failed: {e}")
+            logging.warning(f"DuckDuckGo search also failed: {e}")
     
     if results:
         return "\n\n".join(results)
-    return "No results found"
+    return "No search results found for this query"
 
 async def gather_brand_audit_research(brand_name: str, brand_website: str, competitor_1: str, 
                                        competitor_2: str, category: str, geography: str) -> dict:
