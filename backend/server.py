@@ -1970,60 +1970,62 @@ async def login_email(request: EmailLoginRequest, response: Response):
 # ==================== BRAND AUDIT ENDPOINTS ====================
 
 async def perform_web_search(query: str) -> str:
-    """Perform web search using Perplexity Sonar (via Emergent LLM) for real-time data"""
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    """Perform web search using Bing via primp (reliable) + AI extraction"""
+    import aiohttp
+    from bs4 import BeautifulSoup
     
     results_text = ""
     
+    # Use Bing search via aiohttp (primp shows this works)
     try:
-        # Use Perplexity Sonar via Emergent for web search
-        llm_chat = LlmChat(
-            api_key=EMERGENT_KEY,
-            session_id=f"search_{uuid.uuid4()}",
-            system_message="You are a research assistant. Provide factual, specific information from web search results. Include exact numbers, dates, and ratings when available. Be concise but comprehensive."
-        ).with_model("perplexity", "sonar")
+        search_url = f"https://www.bing.com/search?q={query.replace(' ', '+')}"
+        logging.info(f"Searching Bing: {query[:50]}...")
         
-        search_prompt = f"""Search the web and provide factual information for: {query}
-
-Focus on finding:
-- Exact numbers (store counts, ratings, revenue)
-- Specific dates (founding year, milestones)
-- Current data (2024-2025)
-- Platform ratings (Google Maps, Justdial, Zomato)
-
-Return ONLY factual information found. If data is not found, say "Not found"."""
-
-        user_message = UserMessage(text=search_prompt)
-        response = await llm_chat.send_message(user_message)
-        
-        if hasattr(response, 'text'):
-            results_text = response.text
-        elif isinstance(response, str):
-            results_text = response
-        else:
-            results_text = str(response)
-        
-        logging.info(f"Perplexity Sonar search completed for: {query[:50]}...")
-        return f"Query: {query}\n\nSearch Results:\n{results_text}"
-        
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+            }
+            async with session.get(search_url, headers=headers, timeout=aiohttp.ClientTimeout(total=20)) as response:
+                if response.status == 200:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    
+                    # Extract all text content from the page
+                    # Remove script and style elements
+                    for script in soup(["script", "style"]):
+                        script.decompose()
+                    
+                    # Get text from main content area
+                    main_content = soup.find('main') or soup.find('body')
+                    if main_content:
+                        text = main_content.get_text(separator=' ', strip=True)
+                        # Limit to first 4000 chars to avoid token limits
+                        results_text = text[:4000]
+                        logging.info(f"Bing search extracted {len(results_text)} chars for: {query[:50]}...")
+                else:
+                    logging.warning(f"Bing returned status {response.status}")
     except Exception as e:
-        logging.warning(f"Perplexity search failed: {e}")
-        
-        # Fallback to DuckDuckGo
+        logging.warning(f"Bing search failed: {e}")
+    
+    # Fallback to DuckDuckGo API
+    if not results_text:
         try:
             from duckduckgo_search import DDGS
             with DDGS() as ddgs:
                 ddg_results = list(ddgs.text(query, max_results=5))
                 if ddg_results:
                     formatted = []
-                    for i, r in enumerate(ddg_results, 1):
-                        formatted.append(f"[{i}] {r.get('title', 'No title')}\n{r.get('body', 'No description')}")
-                    results_text = "\n\n".join(formatted)
-                    logging.info(f"DuckDuckGo fallback returned {len(ddg_results)} results")
-                    return f"Query: {query}\n\nSearch Results:\n{results_text}"
+                    for r in ddg_results:
+                        formatted.append(f"{r.get('title', '')}: {r.get('body', '')}")
+                    results_text = "\n".join(formatted)
+                    logging.info(f"DuckDuckGo returned {len(ddg_results)} results")
         except Exception as ddg_error:
-            logging.warning(f"DuckDuckGo fallback also failed: {ddg_error}")
+            logging.warning(f"DuckDuckGo failed: {ddg_error}")
     
+    if results_text:
+        return f"Query: {query}\n\nSearch Results:\n{results_text}"
     return f"Query: {query}\n\nNo search results found"
 
 async def gather_brand_audit_research(brand_name: str, brand_website: str, competitor_1: str, 
